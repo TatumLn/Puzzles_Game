@@ -1,10 +1,12 @@
 # image python
-FROM python:3.13.0
+FROM python:3.13.0-slim
 
 # dependances 
 RUN apt-get update && apt-get install -y \
-    libx11-dev libxext-dev libxrender-dev libxrandr-dev libxcursor-dev && \
-    apt-get clean
+    x11-apps\
+    libx11-dev \
+    python3-tk \
+    && rm -rf /var/lib/apt/lists/*
 
 # repetoire de travail
 WORKDIR /app
