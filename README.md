@@ -15,3 +15,5 @@ Utilisez la commande suivante pour cloner ce dépôt sur votre machine :
 ```bash
 git clone https://github.com/TatumLn/Puzzles_Game.git
 cd Puzzles_Game
+
+#### Contributeurs
