@@ -1,0 +1,2 @@
+pygame  # pour le jeu 
+pytest  # pour le test
