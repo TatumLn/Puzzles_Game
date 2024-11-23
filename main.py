@@ -2,13 +2,21 @@ import pygame
 import random
 import heapq
 
-# --- Configurations de base ---
-SCREEN_SIZE = 600
+# Configurations de base 
+SCREEN_WIDTH = 600  # Largeur de l'écran
+SCREEN_HEIGHT = 400  # Hauteur de l'écran
 SIDE_PANEL_WIDTH = 200
-FONT_SIZE = 30
+FONT_SIZE = 20
 SWAP_INTERVAL = 3
 
-# Couleurs
+# Path des images et des fonts
+LOGO_IMAGE_PATH = "assets/icons/lol.png" 
+FOOTER_IMAGE_PATH = "assets/backgrounds/grille.png"
+FRAME_IMAGE_PATH = "assets/backgrounds/cadre.png"
+ARCADE_FONT_PATH = "assets/fonts/arcade.ttf"
+
+# Initialisation des couleurs
+BACKGROUND_COLOR = (14, 22, 35)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GRAY = (169, 169, 169)
@@ -17,13 +25,15 @@ BUTTON_COLOR = (200, 200, 200)
 # Initialisation de Pygame
 pygame.init()
 font = pygame.font.Font(None, FONT_SIZE)
+arcade_font = pygame.font.Font(ARCADE_FONT_PATH, 11)
+small_font = pygame.font.Font(None, FONT_SIZE // 2)
 
 # --- Classe principale du puzzle ---
 class NPuzzle:
     def __init__(self, grid_size, swap_interval):
         self.grid_size = grid_size
         self.swap_interval = swap_interval
-        self.tile_size = (SCREEN_SIZE - SIDE_PANEL_WIDTH) // grid_size
+        self.tile_size = (SCREEN_WIDTH - SIDE_PANEL_WIDTH) // grid_size
         self.grid = self.generate_solvable_puzzle()
         self.empty_pos = self.find_empty_tile()
         self.move_count = 0
@@ -94,28 +104,94 @@ def solve_puzzle(grid):
 
 # --- Menu principal ---
 def main_menu():
-    screen = pygame.display.set_mode((SCREEN_SIZE, SCREEN_SIZE))
-    pygame.display.set_caption("n-Puzzle Menu")
+    screen = pygame.display.set_mode((400, 600))
+    pygame.display.set_caption("LOL Puzzle")
     running = True
+    
+    # Charger le logo
+    logo_image = pygame.image.load(LOGO_IMAGE_PATH)
+    logo_image = pygame.transform.scale(logo_image, (100, 200))
+    logo_rect = logo_image.get_rect(center=(400 // 2, 600 // 8))
+    
+    # Charger l'image du cadre
+    y_offset = 40
+    frame_image = pygame.image.load(FRAME_IMAGE_PATH)
+    frame_image = pygame.transform.scale(frame_image, (320 , 900))
+    frame_rect = frame_image.get_rect(center=(400 // 2, 600 // 3 + y_offset))
+        
+    # Charger l'image footer
+    footer_image = pygame.image.load(FOOTER_IMAGE_PATH)
+    footer_image = pygame.transform.scale(footer_image, (400 , 400))
+    footer_rect = footer_image.get_rect(midbottom=(400 // 2, 600))
+    
+    # Curseurs
+    default_cursor = pygame.SYSTEM_CURSOR_ARROW
+    pointer_cursor = pygame.SYSTEM_CURSOR_HAND
+    
     while running:
-        screen.fill(GRAY)
+        screen.fill(BACKGROUND_COLOR)
+        
+        # Afficher l'image du background
+        screen.blit(footer_image, footer_rect)
 
-        title = font.render("Choisissez la taille du puzzle:", True, BLACK)
-        screen.blit(title, (SCREEN_SIZE // 4, SCREEN_SIZE // 4))
+        # Afficher le cadre au milieu
+        screen.blit(frame_image, frame_rect)
 
-        button_3x3 = pygame.Rect(SCREEN_SIZE // 4, SCREEN_SIZE // 2 - 50, SCREEN_SIZE // 2, 50)
-        button_4x4 = pygame.Rect(SCREEN_SIZE // 4, SCREEN_SIZE // 2 + 50, SCREEN_SIZE // 2, 50)
+        
+        # Afficher le logo
+        screen.blit(logo_image, logo_rect)
+        
+        # Calcul des positions  du titre et boutons
+        button_width = 400 // 4
+        button_height = 25  
+        button_gap = 400 // 22
+        button_corner_radius = 20
+        button_y_position = 600 // 2  # Position des boutons sur l'axe vertical
+        title_y_position = button_y_position - button_height - 20
+        
+        # Choix
+        title = arcade_font.render("Choisissez la taille du puzzle", True, WHITE)
+        title_rect = title.get_rect(center=(400 // 2, title_y_position))
+        screen.blit(title, title_rect)
+        
+        # Nom du Jeu
+        puzzletxt = arcade_font.render("PUZZLE", True, WHITE)
+        puzzletxt_rect = puzzletxt.get_rect(center=(logo_rect.centerx, logo_rect.bottom + 5))
+        screen.blit(puzzletxt, puzzletxt_rect)
 
-        pygame.draw.rect(screen, BUTTON_COLOR, button_3x3)
-        pygame.draw.rect(screen, BUTTON_COLOR, button_4x4)
+        #Bouton    
+        button_3x3 = pygame.Rect(
+            (400 // 2 - button_gap - button_width),
+             600 // 2,
+             button_width,
+             button_height,
+            )
+        
+        button_4x4 = pygame.Rect(
+            (400 // 2 + button_gap),
+            600 // 2,
+            button_width,
+            button_height,
+            )
 
+        pygame.draw.rect(screen, BUTTON_COLOR, button_3x3, border_radius=button_corner_radius)
+        pygame.draw.rect(screen, BUTTON_COLOR, button_4x4, border_radius=button_corner_radius)
+
+        #Texte des boutons
         text_3x3 = font.render("3x3", True, BLACK)
         text_4x4 = font.render("4x4", True, BLACK)
-        screen.blit(text_3x3, button_3x3.center)
-        screen.blit(text_4x4, button_4x4.center)
+        
+        # Centrage du texte dans les boutons
+        text_3x3_rect = text_3x3.get_rect(center=button_3x3.center)
+        text_4x4_rect = text_4x4.get_rect(center=button_4x4.center)
 
+        screen.blit(text_3x3, text_3x3_rect)
+        screen.blit(text_4x4, text_4x4_rect)
+        
         pygame.display.flip()
 
+        # Gestion des événements
+        mouse_over_button = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -126,6 +202,15 @@ def main_menu():
                     return 3
                 elif button_4x4.collidepoint(x, y):
                     return 4
+               
+        # Vérifier si la souris survole un bouton
+        mouse_pos = pygame.mouse.get_pos()
+        if button_3x3.collidepoint(mouse_pos) or button_4x4.collidepoint(mouse_pos):
+            pygame.mouse.set_cursor(pointer_cursor)  # Curseur "main pointer"
+            mouse_over_button = True
+        else:
+            pygame.mouse.set_cursor(default_cursor)  # Curseur par défaut
+     
 
 # --- Affichage de la grille ---
 def draw_grid(screen, puzzle, show_solve_button):
@@ -141,19 +226,19 @@ def draw_grid(screen, puzzle, show_solve_button):
                 text = font.render(str(value), True, BLACK)
                 screen.blit(text, rect.center)
 
-    side_panel = pygame.Rect(SCREEN_SIZE - SIDE_PANEL_WIDTH, 0, SIDE_PANEL_WIDTH, SCREEN_SIZE)
+    side_panel = pygame.Rect(SCREEN_WIDTH - SIDE_PANEL_WIDTH, 0, SIDE_PANEL_WIDTH, SCREEN_HEIGHT)
     pygame.draw.rect(screen, WHITE, side_panel)
 
     instructions = ["Instructions:", "- Flèches: Déplacer", "- Solve: Résolution auto"]
     y_offset = 20
     for line in instructions:
         text = font.render(line, True, BLACK)
-        screen.blit(text, (SCREEN_SIZE - SIDE_PANEL_WIDTH + 10, y_offset))
+        screen.blit(text, (SCREEN_WIDTH - SIDE_PANEL_WIDTH + 10, y_offset))
         y_offset += FONT_SIZE + 10
 
     solve_button = None
     if show_solve_button:
-        solve_button = pygame.Rect(SCREEN_SIZE - SIDE_PANEL_WIDTH + 10, SCREEN_SIZE - 100, SIDE_PANEL_WIDTH - 20, 50)
+        solve_button = pygame.Rect(SCREEN_WIDTH - SIDE_PANEL_WIDTH + 10, SCREEN_HEIGHT - 100, SIDE_PANEL_WIDTH - 20, 50)
         pygame.draw.rect(screen, BUTTON_COLOR, solve_button)
         text_solve = font.render("Solve", True, BLACK)
         screen.blit(text_solve, solve_button.center)
@@ -168,7 +253,7 @@ def main():
         pygame.quit()
         return
 
-    screen = pygame.display.set_mode((SCREEN_SIZE + SIDE_PANEL_WIDTH, SCREEN_SIZE))
+    screen = pygame.display.set_mode((SCREEN_WIDTH + SIDE_PANEL_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("Puzzle N")
 
     puzzle = NPuzzle(grid_size, SWAP_INTERVAL)
@@ -181,7 +266,7 @@ def main():
 
         if puzzle.is_solved():
             text = font.render("Vous avez gagné!", True, BLACK)
-            screen.blit(text, (SCREEN_SIZE // 4, SCREEN_SIZE // 4))
+            screen.blit(text, (SCREEN_WIDTH // 4, SCREEN_HEIGHT // 4))
             pygame.display.flip()
             pygame.time.wait(3000)
             running = False
@@ -213,5 +298,6 @@ def main():
 
     pygame.quit()
 
+# Exécution du menu principal
 if __name__ == "__main__":
     main()
