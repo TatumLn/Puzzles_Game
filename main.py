@@ -70,6 +70,9 @@ class NPuzzle:
             if self.swap_mode:
                 # En mode swap, on peut échanger n'importe quelles tuiles adjacentes
                 self.grid[x][y], self.grid[new_x][new_y] = self.grid[new_x][new_y], self.grid[x][y]
+                self.swap_mode = False  # Désactiver le mode swap après utilisation
+                self.move_count = 0  # Réinitialiser le compteur de déplacements
+
             else:
                 # Mode normal : seulement la case vide peut être déplacée
                 if self.grid[x][y] == 0:
@@ -77,6 +80,10 @@ class NPuzzle:
                 
             self.empty_pos = (new_x, new_y)
             self.move_count += 1
+            
+            # Activer le mode swap après le nombre requis de déplacements
+            if self.swap_after and self.move_count >= self.swap_after:
+                self.swap_mode = True
 
     def is_solved(self):
         expected = list(range(1, self.grid_size ** 2)) + [0]
@@ -142,6 +149,29 @@ def main_menu():
     default_cursor = pygame.SYSTEM_CURSOR_ARROW
     pointer_cursor = pygame.SYSTEM_CURSOR_HAND
     
+    # Valeur par défaut de k : nombre de deplacement avant lactivation du SWAP
+    k_value = 10
+    
+    # Calcul des positions boutons et du titre
+    button_width = 120
+    button_height = 20
+    button_spacing = 20  # Espace entre les boutons 3x3
+    center_x = 400 // 2
+    title_y = 250  # Position du titre
+    buttons_start_y = title_y + 30
+
+    buttons = [
+     {"label": "8-P Classic", "mode": 3, "swap": 0, "rect": pygame.Rect(center_x - button_width - button_spacing // 2, buttons_start_y, button_width, button_height)},
+     {"label": "8-P avec SWAP", "mode": 3, "swap": "k", "rect": pygame.Rect(center_x + button_spacing // 2, buttons_start_y, button_width, button_height)},
+     {"label": "15-P avec SWAP", "mode": 4, "swap": "k", "rect": pygame.Rect(center_x - button_width // 2, 320, button_width, button_height)},
+    ]
+    
+    # Boutons pour modifier K
+    k_button_size = 30
+    k_spacing = 1  # Réduire l'espace
+    k_increase = pygame.Rect(center_x + k_spacing + k_button_size // 2, 490, k_button_size, k_button_size)
+    k_decrease = pygame.Rect(center_x - k_spacing - k_button_size // 2 - k_button_size, 490, k_button_size, k_button_size)
+    
     while running:
         screen.fill(BACKGROUND_COLOR)
         
@@ -150,23 +180,13 @@ def main_menu():
 
         # Afficher le cadre au milieu
         screen.blit(frame_image, frame_rect)
-
         
         # Afficher le logo
         screen.blit(logo_image, logo_rect)
         
-        # Calcul des positions  du titre et boutons
-        button_width = 400 // 4
-        button_height = 25  
-        button_gap = 400 // 22
-        button_corner_radius = 20
-        button_y_position = 600 // 2  # Position des boutons sur l'axe vertical
-        title_y_position = button_y_position - button_height - 20
-        starting_y = 600 // 2 - 20
-        
         # Choix
         title = arcade_font.render("Choisissez la taille du puzzle", True, WHITE)
-        title_rect = title.get_rect(center=(400 // 2, title_y_position))
+        title_rect = title.get_rect(center=(400 // 2, title_y))
         screen.blit(title, title_rect)
         
         # Nom du Jeu
@@ -174,25 +194,25 @@ def main_menu():
         puzzletxt_rect = puzzletxt.get_rect(center=(logo_rect.centerx, logo_rect.bottom + 5))
         screen.blit(puzzletxt, puzzletxt_rect)
 
-        #Bouton    
-        button_3x3 = pygame.Rect((400 - button_width) // 2, starting_y, button_width, button_height)
-        button_3x3_swap = pygame.Rect((400 - button_width) // 2, starting_y + button_height + button_gap, button_width, button_height)
-        button_4x4 = pygame.Rect((400 - button_width) // 2, starting_y + (button_height + button_gap) * 2, button_width, button_height)
-
-        for button in [button_3x3, button_3x3_swap, button_4x4]:
-            pygame.draw.rect(screen, BUTTON_COLOR, button, border_radius=button_corner_radius)
-
-        #Texte des boutons
-        text_3x3 = font.render("3x3 Classic", True, BLACK)
-        text_3x3_swap = font.render("3x3 Swap(10)", True, BLACK)
-        text_4x4 = font.render("4x4 Swap(4)", True, BLACK)
+        k_prompt = arcade_font.render(f"SWAP (K): {k_value}", True, WHITE)
+        k_rect = k_prompt.get_rect(center=(400 // 2, 380))
+        screen.blit(k_prompt, k_rect)
         
-        # Centrage du texte dans les boutons
-        for button, text in zip([button_3x3, button_3x3_swap, button_4x4], 
-                              [text_3x3, text_3x3_swap, text_4x4]):
-            text_rect = text.get_rect(center=button.center)
-            screen.blit(text, text_rect)
-            
+        
+        
+        # Dessiner les boutons
+        for button in buttons:
+            pygame.draw.rect(screen, BUTTON_COLOR, button["rect"], border_radius=10)
+            text_surface = font.render(button["label"], True, BLACK)
+            text_rect = text_surface.get_rect(center=button["rect"].center)
+            screen.blit(text_surface, text_rect)
+
+        # Dessiner les boutons pour modifier K
+        pygame.draw.rect(screen, BUTTON_COLOR, k_increase, border_radius=10)
+        pygame.draw.rect(screen, BUTTON_COLOR, k_decrease, border_radius=10)
+
+        screen.blit(font.render("+", True, BLACK), k_increase.center)
+        screen.blit(font.render("-", True, BLACK), k_decrease.center)
         pygame.display.flip()
 
         # Gestion des événements
@@ -202,16 +222,24 @@ def main_menu():
                 return None, None
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = pygame.mouse.get_pos()
-                if button_3x3.collidepoint(x, y):
-                    return 3, None
-                elif button_3x3_swap.collidepoint(x, y):
-                    return 3, 10
-                elif button_4x4.collidepoint(x, y):
-                    return 4, 4
+                
+                # Vérifier si un bouton de mode est cliqué
+                for button in buttons:
+                    if button["rect"].collidepoint(x, y):
+                        if button["swap"] == "k":
+                            return button["mode"], k_value  # Mode avec SWAP
+                        else:
+                            return button["mode"], button["swap"]  # Mode classique
+
+                # Modifier la valeur de K
+                if k_increase.collidepoint(x, y):
+                    k_value += 1
+                elif k_decrease.collidepoint(x, y) and k_value > 1:
+                    k_value -= 1
                
         # Vérifier si la souris survole un bouton
         mouse_pos = pygame.mouse.get_pos()
-        if any(button.collidepoint(mouse_pos) for button in [button_3x3, button_3x3_swap, button_4x4]):
+        if any(button["rect"].collidepoint(mouse_pos) for button in buttons) or k_increase.collidepoint(mouse_pos) or k_decrease.collidepoint(mouse_pos):
             pygame.mouse.set_cursor(pointer_cursor)
         else:
             pygame.mouse.set_cursor(default_cursor)
@@ -248,18 +276,6 @@ def draw_grid(screen, puzzle, show_solve_button):
                 text = font.render(str(value), True, BLACK)
                 text_rect = text.get_rect(center=rect.center)
                 screen.blit(text, rect.center)
-                
-    # Affichage du mode swap
-    if puzzle.swap_mode:
-        swap_text = arcade_font.render("MODE SWAP ACTIF", True, WHITE)
-        swap_rect = swap_text.get_rect(centerx=SCREEN_WIDTH - SIDE_PANEL_WIDTH/2, top=20)
-        screen.blit(swap_text, swap_rect)
-    elif puzzle.swap_after:
-        moves_left = puzzle.swap_after - puzzle.move_count
-        if moves_left > 0:
-            swap_text = arcade_font.render(f"SWAP DANS: {moves_left}", True, WHITE)
-            swap_rect = swap_text.get_rect(centerx=SCREEN_WIDTH - SIDE_PANEL_WIDTH/2, top=20)
-            screen.blit(swap_text, swap_rect)
                 
     # Calcul de la largeur du panneau latéral pour le centrage
     panel_left = SCREEN_WIDTH - SIDE_PANEL_WIDTH
@@ -355,6 +371,31 @@ def draw_grid(screen, puzzle, show_solve_button):
         text_solve = font.render("AUTO", True, BLACK)
         text_rect = text_solve.get_rect(center=solve_button.center)
         screen.blit(text_solve, text_rect)
+        
+    # Affichage du mode swap
+    if puzzle.swap_mode:
+            swap_text = arcade_font.render("MODE SWAP ACTIF", True, WHITE)
+            swap_rect = swap_text.get_rect(centerx=SCREEN_WIDTH - SIDE_PANEL_WIDTH/2, top=20)
+            screen.blit(swap_text, swap_rect)
+    elif puzzle.swap_after:
+            # Afficher le compte à rebours avant le prochain swap
+            moves_left = puzzle.swap_after - puzzle.move_count
+            swap_text = arcade_font.render(f"SWAP DANS: {moves_left}", True, WHITE)
+            swap_y = SCREEN_HEIGHT - 40 if show_solve_button else SCREEN_HEIGHT - 50
+            swap_rect = swap_text.get_rect(centerx=SCREEN_WIDTH - SIDE_PANEL_WIDTH / 2, top=swap_y)
+            screen.blit(swap_text, swap_rect)
+                
+    # Position du texte swap juste en dessous du bouton AUTO ou en bas si pas de bouton
+            if show_solve_button:
+                swap_y = SCREEN_HEIGHT - 40  # En dessous du bouton AUTO
+            else:
+                swap_y = SCREEN_HEIGHT - 50  # Position par défaut si pas de bouton
+            
+            swap_rect = swap_text.get_rect(
+            centerx=SCREEN_WIDTH - SIDE_PANEL_WIDTH/2,
+            top=swap_y
+            )
+            screen.blit(swap_text, swap_rect)
 
     pygame.display.flip()
     return solve_button
