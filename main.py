@@ -21,6 +21,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GRAY = (169, 169, 169)
 BUTTON_COLOR = (200, 200, 200)
+DEBUG_COLOR = (10, 36, 254)
 
 # Initialisation de Pygame
 pygame.init()
@@ -33,7 +34,9 @@ class NPuzzle:
     def __init__(self, grid_size, swap_interval):
         self.grid_size = grid_size
         self.swap_interval = swap_interval
-        self.tile_size = (SCREEN_WIDTH - SIDE_PANEL_WIDTH) // grid_size
+        total_width = SCREEN_WIDTH - SIDE_PANEL_WIDTH
+        total_height = SCREEN_HEIGHT
+        self.tile_size = min(total_width // grid_size, total_height // grid_size)
         self.grid = self.generate_solvable_puzzle()
         self.empty_pos = self.find_empty_tile()
         self.move_count = 0
@@ -214,27 +217,37 @@ def main_menu():
 
 # --------------------------------------------- Affichage de la grille du jeu ----------------------------------------------
 def draw_grid(screen, puzzle, show_solve_button):
-    screen.fill(GRAY)
+ 
+    # Efface uniquement la zone de la grille
+    grid_area = pygame.Rect(0, 0, SCREEN_WIDTH - SIDE_PANEL_WIDTH, SCREEN_HEIGHT)
+    pygame.draw.rect(screen, GRAY, grid_area)  # Fond gris pour la grille
+    
+    # Panneau lateral pour instruction et information
+    side_panel = pygame.Rect(SCREEN_WIDTH - SIDE_PANEL_WIDTH, 0, SIDE_PANEL_WIDTH, SCREEN_HEIGHT)
+    pygame.draw.rect(screen, WHITE, side_panel)
+    
+    # Débogage visuel (contour bleu du panneau latéral)
+    pygame.draw.rect(screen, DEBUG_COLOR, side_panel, 2)  # Contour noir pour le panneau
 
     # Grille pour le puzzle
     for i in range(puzzle.grid_size):
         for j in range(puzzle.grid_size):
             value = puzzle.grid[i][j]
-            rect = pygame.Rect(j * puzzle.tile_size, i * puzzle.tile_size, puzzle.tile_size, puzzle.tile_size)
-            
+            rect = pygame.Rect(
+                j * puzzle.tile_size, 
+                i * puzzle.tile_size, 
+                puzzle.tile_size,
+                puzzle.tile_size)          
             #Couleur des cases
-            pygame.draw.rect(screen, WHITE if value != 0 else GRAY, rect)
-            
+            pygame.draw.rect(screen, WHITE if value != 0 else GRAY, rect)           
             #Contours de la cellule
             pygame.draw.rect(screen, BLACK, rect, 2)
             if value != 0:
                 text = font.render(str(value), True, BLACK)
+                text_rect = text.get_rect(center=rect.center)
                 screen.blit(text, rect.center)
 
-    # Panneau lateral pour instruction et information
-    side_panel = pygame.Rect(SCREEN_WIDTH - SIDE_PANEL_WIDTH, 0, SIDE_PANEL_WIDTH, SCREEN_HEIGHT)
-    pygame.draw.rect(screen, WHITE, side_panel)
-
+    # Instructions sur le JEU
     instructions = ["Instructions:", "- Flèches: Déplacer", "- Solve: Résolution auto"]
     y_offset = 20
     for line in instructions:
@@ -248,7 +261,8 @@ def draw_grid(screen, puzzle, show_solve_button):
         solve_button = pygame.Rect(SCREEN_WIDTH - SIDE_PANEL_WIDTH + 10, SCREEN_HEIGHT - 100, SIDE_PANEL_WIDTH - 20, 50)
         pygame.draw.rect(screen, BUTTON_COLOR, solve_button)
         text_solve = font.render("Mode Auto", True, BLACK)
-        screen.blit(text_solve, solve_button.center)
+        text_rect = text_solve.get_rect(center=solve_button.center)
+        screen.blit(text_solve, text_rect)
 
     pygame.display.flip()
     return solve_button
@@ -260,8 +274,8 @@ def main():
         pygame.quit()
         return
 
-    screen = pygame.display.set_mode((SCREEN_WIDTH + SIDE_PANEL_WIDTH, SCREEN_HEIGHT))
-    pygame.display.set_caption("Puzzle N")
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.display.set_caption("LOL Puzzle")
 
     puzzle = NPuzzle(grid_size, SWAP_INTERVAL)
     clock = pygame.time.Clock()
