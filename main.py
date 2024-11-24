@@ -26,6 +26,7 @@ DEBUG_COLOR = (10, 36, 254)
 pygame.init()
 font = pygame.font.Font(None, FONT_SIZE)
 arcade_font = pygame.font.Font(ARCADE_FONT_PATH, 11)
+arcade_font_small =pygame.font.Font(ARCADE_FONT_PATH, 8)
 small_font = pygame.font.Font(None, FONT_SIZE // 2)
 
 # -------------------------------------------------- Classe principale du puzzle --------------------------------------------
@@ -288,12 +289,12 @@ def draw_grid(screen, puzzle, show_solve_button):
     screen.blit(instruct_txt, instruct_rect)
 
     # Instructions sur le JEU   
-    y_offset = instruct_rect.bottom + 40 
+    y_offset = instruct_rect.bottom + 25
     
     # Première instruction avec licon rouge
     try:
         red_yo = pygame.image.load("assets/icons/red-yo.png")
-        red_yo = pygame.transform.scale(red_yo, (30, 30))
+        red_yo = pygame.transform.scale(red_yo, (15, 30))
         yo_icon_rect = red_yo.get_rect(left=panel_left + 10, top=y_offset)
         screen.blit(red_yo, yo_icon_rect)
     except:
@@ -301,61 +302,78 @@ def draw_grid(screen, puzzle, show_solve_button):
                          (panel_left + 25, y_offset + 15), 15)
         
     # Texte "UTILISER" 
-    text_use = arcade_font.render("UTILISER", True, WHITE)
-    text_rect = text_use.get_rect(
-        left=yo_icon_rect.right + 10,
-        centery=yo_icon_rect.centery
-    )
-    screen.blit(text_use, text_rect)
-    
-    # Flèches sur la ligne suivante
-    arrow_y = y_offset + 35
+    text_lines_1 = ["UTILISER LES TOUCHES", "POUR DEPLACER LES", "TUILES."]
+    text_y = y_offset
+    for line in text_lines_1:
+            text_surf = arcade_font_small.render(line, True, WHITE)
+            text_rect = text_surf.get_rect(
+                left=yo_icon_rect.right + 10,
+                top=text_y
+            )
+            screen.blit(text_surf, text_rect)
+            text_y += text_rect.height + 5
+
+    """# Flèches sur la ligne suivante
+    arrow_x =text_rect.right + 10
     arrows = ["→", "←", "↑", "↓"]
     total_width = len(arrows) * 30  # Largeur totale pour les flèches
     arrow_x = panel_left + (SIDE_PANEL_WIDTH - total_width) // 2  # Centrer les flèches
 
     for arrow in arrows:
-       arrow_surf = arcade_font.render(arrow, True, WHITE)
-       arrow_rect = arrow_surf.get_rect(left=arrow_x, top=arrow_y)
-       screen.blit(arrow_surf, arrow_rect)
-       arrow_x += 30
-       
-    # Texte "POUR DEPLACER LES TUILES"
-    text_move = arcade_font.render("POUR DEPLACER", True, WHITE)
-    text_tuiles = arcade_font.render("LES TUILES", True, WHITE)
-    
-    move_rect = text_move.get_rect(
-        centerx=panel_left + SIDE_PANEL_WIDTH // 2,
-        top=arrow_y + 35
+        arrow_surf = arcade_font.render(arrow, True, WHITE)
+        arrow_rect = arrow_surf.get_rect(
+        left=arrow_x,  # Aligner chaque flèche après la précédente
+        centery=text_rect.centery  # Aligner verticalement avec "UTILISER"
     )
-    tuiles_rect = text_tuiles.get_rect(
-        centerx=panel_left + SIDE_PANEL_WIDTH // 2,
-        top=move_rect.bottom + 5
-    )
+    screen.blit(arrow_surf, arrow_rect)
+    arrow_x += arrow_rect.width + 10  # Ajoute un espacement entre les flèches"""
     
     # Espace avant la deuxième instruction
-    y_offset = tuiles_rect.bottom + 40
+    y_offset = text_rect.bottom + 20
     
+    # Deuxieme instruction avec licon rouge
+    try:
+       pink_yo = pygame.image.load("assets/icons/pink-yo.png")
+       pink_yo = pygame.transform.scale(pink_yo, (15, 30))
+       yo_icon_rect = pink_yo.get_rect(left=panel_left + 10, top=y_offset)
+       screen.blit(pink_yo, yo_icon_rect)
+    except:
+       pygame.draw.circle(screen, (0, 255, 255), 
+                        (panel_left + 25, y_offset + 15), 15)
+       
+    # Texte de la deuxième instruction sur plusieurs lignes
+    text_lines_2 = ["UTILISER LA ", "COMBINAISON DE DEUX ", "TOUCHES POUR LE SWAP."]
+       
+    text_y = y_offset
+    for line in text_lines_2:
+        text_surf = arcade_font_small.render(line, True, WHITE)
+        text_rect = text_surf.get_rect(
+              left=yo_icon_rect.right + 10,
+              top=text_y
+        )
+        screen.blit(text_surf, text_rect)
+        text_y += text_rect.height + 5
+           
+    # Espace avant la deuxième instruction
+    y_offset = text_rect.bottom + 20
     
-    # Deuxième instruction avec licon bleu
+    # Troisieme instruction avec licon bleu
     try:
        blue_yo = pygame.image.load("assets/icons/blue-yo.png")
-       blue_yo = pygame.transform.scale(blue_yo, (30, 30))
+       blue_yo = pygame.transform.scale(blue_yo, (15, 30))
        yo_icon_rect = blue_yo.get_rect(left=panel_left + 10, top=y_offset)
        screen.blit(blue_yo, yo_icon_rect)
     except:
        pygame.draw.circle(screen, (0, 255, 255), 
                         (panel_left + 25, y_offset + 15), 15)
     
-    screen.blit(text_move, move_rect)
-    screen.blit(text_tuiles, tuiles_rect)
     
     # Texte de la deuxième instruction sur plusieurs lignes
-    text_lines = ["APPUYER SUR LE", "BOUTON AUTO EN", "BAS POUR RESOUDRE", "LE PUZZLE", "AUTOMATIQUEMENT"]
+    text_lines_3 = ["APPUYER SUR AUTO EN", "BAS POUR RESOUDRE LE", "PUZZLE AVEC L'IA."]
     
     text_y = y_offset
-    for line in text_lines:
-        text_surf = arcade_font.render(line, True, WHITE)
+    for line in text_lines_3:
+        text_surf = arcade_font_small.render(line, True, WHITE)
         text_rect = text_surf.get_rect(
             left=yo_icon_rect.right + 10,
             top=text_y
@@ -380,7 +398,7 @@ def draw_grid(screen, puzzle, show_solve_button):
     elif puzzle.swap_after:
             # Afficher le compte à rebours avant le prochain swap
             moves_left = puzzle.swap_after - puzzle.move_count
-            swap_text = arcade_font.render(f"SWAP DANS: {moves_left}", True, WHITE)
+            swap_text = arcade_font_small.render(f"SWAP DANS: {moves_left}", True, WHITE)
             swap_y = SCREEN_HEIGHT - 40 if show_solve_button else SCREEN_HEIGHT - 50
             swap_rect = swap_text.get_rect(centerx=SCREEN_WIDTH - SIDE_PANEL_WIDTH / 2, top=swap_y)
             screen.blit(swap_text, swap_rect)
