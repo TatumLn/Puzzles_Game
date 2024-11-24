@@ -36,4 +36,8 @@ iii - Pour windows
 ```
 
 ## Contributeurs
-- [TatumLn](https://github.com/TatumLn): Front-End && OPS <br>- [Devkalix](https://github.com/Devkalix)     : Front-End <br>- [RatsirofoFenosoa-Git](https://github.com/RatsirofoFenosoa-Git): Back-End <br>- [toby7431](https://github.com/toby7431): Back-End <br>- [DADDYB0Y](https://github.com/DADDYB0Y): Full-Stack
+- [TatumLn](https://github.com/TatumLn): Front-End && OPS
+- [Devkalix](https://github.com/Devkalix): Front-End
+- [RatsirofoFenosoa-Git](https://github.com/RatsirofoFenosoa-Git): Back-End
+- [toby7431](https://github.com/toby7431): Back-End
+- [DADDYB0Y](https://github.com/DADDYB0Y): Full-Stack
