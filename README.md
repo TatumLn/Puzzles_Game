@@ -16,17 +16,17 @@ git clone https://github.com/TatumLn/Puzzles_Game.git
 cd Puzzles_Game
 ```
 
-## Étapes pour lancer le projet 
+### 2. Étapes pour lancer le projet 
 i   - Construisez limage Docker
 ```bash
 docker build -t puzzle-game:1.0 .
 ```
 ii  - Lancer le conteneur (02 choix possible)
-# Avec docker run
+#### Avec docker run
 ```bash
 docker run -it --rm -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix puzzle-game:1.0
 ```
-# Avec docker compose
+#### Avec docker compose
 ```bash
 docker compose up
 ```
@@ -35,9 +35,5 @@ iii - Pour windows
 
 ```
 
-##### Contributeurs
-@TatumLn              : Front-End && OPS 
-@Devkalix             : Front-End 
-@RatsirofoFenosoa-Git : Back-End
-@toby7431             : Back-End
-@DADDYB0Y             : Full-Stack
+## Contributeurs
+[TatumLn](https://github.com/TatumLn): Front-End && OPS <br>[Devkalix](https://github.com/Devkalix)     : Front-End <br>[RatsirofoFenosoa-Git](https://github.com/RatsirofoFenosoa-Git): Back-End <br>[toby7431](https://github.com/toby7431): Back-End <br>[DADDYB0Y](https://github.com/DADDYB0Y): Full-Stack
