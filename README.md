@@ -1,6 +1,6 @@
 # Puzzle Game (8-Puzzle & 15-Puzzle)
 
-Bienvenue dans le projet **Puzzle Game** ! Ce jeu est développé en Python avec Pygame et peut être exécuté dans un environnement Docker de maniere simple et fiable.<br>a - Choisissez entre le puzzle 3x3 ou 4x4.<br>b - Jouer : deplacez les tuiles pour resoudre les puzzles.<br>c - AI : Resoudre le puzzle automatiquement.
+Bienvenue dans le projet **LOL Puzzle** ! Ce jeu est développé en Python avec Pygame et peut être exécuté dans un environnement Docker de maniere simple et fiable.<br>a - Choisissez entre le puzzle 3x3 ou 4x4.<br>b - Jouer : deplacez les tuiles pour résoudre les puzzles.<br>c - AI : Resoudre le puzzle automatiquement.
 
 ## Prérequis
 
