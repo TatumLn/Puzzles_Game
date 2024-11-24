@@ -28,7 +28,7 @@ font = pygame.font.Font(None, FONT_SIZE)
 arcade_font = pygame.font.Font(ARCADE_FONT_PATH, 11)
 small_font = pygame.font.Font(None, FONT_SIZE // 2)
 
-# --- Classe principale du puzzle ---
+# -------------------------------------------------- Classe principale du puzzle --------------------------------------------
 class NPuzzle:
     def __init__(self, grid_size, swap_interval):
         self.grid_size = grid_size
@@ -68,7 +68,7 @@ class NPuzzle:
         expected = list(range(1, self.grid_size ** 2)) + [0]
         return self.grid == [expected[i:i + self.grid_size] for i in range(0, len(expected), self.grid_size)]
 
-# --- Algorithme de résolution automatique (A*) ---
+# ------------------------------------------------- Algorithme de résolution automatique  --------------------------------
 def solve_puzzle(grid):
     def heuristic(grid):
         dist = 0
@@ -102,7 +102,7 @@ def solve_puzzle(grid):
 
     return None
 
-# --- Menu principal ---
+# ------------------------------------------------- Menu principal ---------------------------------------------------------
 def main_menu():
     screen = pygame.display.set_mode((400, 600))
     pygame.display.set_caption("LOL Puzzle")
@@ -212,20 +212,26 @@ def main_menu():
             pygame.mouse.set_cursor(default_cursor)  # Curseur par défaut
      
 
-# --- Affichage de la grille ---
+# --------------------------------------------- Affichage de la grille du jeu ----------------------------------------------
 def draw_grid(screen, puzzle, show_solve_button):
     screen.fill(GRAY)
 
+    # Grille pour le puzzle
     for i in range(puzzle.grid_size):
         for j in range(puzzle.grid_size):
             value = puzzle.grid[i][j]
             rect = pygame.Rect(j * puzzle.tile_size, i * puzzle.tile_size, puzzle.tile_size, puzzle.tile_size)
+            
+            #Couleur des cases
             pygame.draw.rect(screen, WHITE if value != 0 else GRAY, rect)
+            
+            #Contours de la cellule
             pygame.draw.rect(screen, BLACK, rect, 2)
             if value != 0:
                 text = font.render(str(value), True, BLACK)
                 screen.blit(text, rect.center)
 
+    # Panneau lateral pour instruction et information
     side_panel = pygame.Rect(SCREEN_WIDTH - SIDE_PANEL_WIDTH, 0, SIDE_PANEL_WIDTH, SCREEN_HEIGHT)
     pygame.draw.rect(screen, WHITE, side_panel)
 
@@ -236,11 +242,12 @@ def draw_grid(screen, puzzle, show_solve_button):
         screen.blit(text, (SCREEN_WIDTH - SIDE_PANEL_WIDTH + 10, y_offset))
         y_offset += FONT_SIZE + 10
 
+    # Bouton de resolution automatique du puzzle
     solve_button = None
     if show_solve_button:
         solve_button = pygame.Rect(SCREEN_WIDTH - SIDE_PANEL_WIDTH + 10, SCREEN_HEIGHT - 100, SIDE_PANEL_WIDTH - 20, 50)
         pygame.draw.rect(screen, BUTTON_COLOR, solve_button)
-        text_solve = font.render("Solve", True, BLACK)
+        text_solve = font.render("Mode Auto", True, BLACK)
         screen.blit(text_solve, solve_button.center)
 
     pygame.display.flip()
