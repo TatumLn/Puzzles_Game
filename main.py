@@ -34,9 +34,8 @@ class NPuzzle:
     def __init__(self, grid_size, swap_interval):
         self.grid_size = grid_size
         self.swap_interval = swap_interval
-        total_width = SCREEN_WIDTH - SIDE_PANEL_WIDTH
-        total_height = SCREEN_HEIGHT
-        self.tile_size = min(total_width // grid_size, total_height // grid_size)
+        puzzle_area_width = SCREEN_WIDTH - SIDE_PANEL_WIDTH
+        self.tile_size = min(puzzle_area_width, SCREEN_HEIGHT) // grid_size
         self.grid = self.generate_solvable_puzzle()
         self.empty_pos = self.find_empty_tile()
         self.move_count = 0
@@ -224,7 +223,7 @@ def draw_grid(screen, puzzle, show_solve_button):
     
     # Panneau lateral pour instruction et information
     side_panel = pygame.Rect(SCREEN_WIDTH - SIDE_PANEL_WIDTH, 0, SIDE_PANEL_WIDTH, SCREEN_HEIGHT)
-    pygame.draw.rect(screen, WHITE, side_panel)
+    pygame.draw.rect(screen, BACKGROUND_COLOR, side_panel)
     
     # Débogage visuel (contour bleu du panneau latéral)
     pygame.draw.rect(screen, DEBUG_COLOR, side_panel, 2)  # Contour noir pour le panneau
@@ -248,10 +247,10 @@ def draw_grid(screen, puzzle, show_solve_button):
                 screen.blit(text, rect.center)
 
     # Instructions sur le JEU
-    instructions = ["Instructions:", "- Flèches: Déplacer", "- Solve: Résolution auto"]
+    instructions = ["Instructions", "- Flèches: Déplacer", "- Solve: Résolution auto"]
     y_offset = 20
     for line in instructions:
-        text = font.render(line, True, BLACK)
+        text = font.render(line, True, WHITE)
         screen.blit(text, (SCREEN_WIDTH - SIDE_PANEL_WIDTH + 10, y_offset))
         y_offset += FONT_SIZE + 10
 
