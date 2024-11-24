@@ -7,7 +7,6 @@ SCREEN_WIDTH = 600  # Largeur de l'écran
 SCREEN_HEIGHT = 400  # Hauteur de l'écran
 SIDE_PANEL_WIDTH = 200
 FONT_SIZE = 20
-SWAP_INTERVAL = 3
 
 # Path des images et des fonts
 LOGO_IMAGE_PATH = "assets/icons/lol.png" 
@@ -31,14 +30,15 @@ small_font = pygame.font.Font(None, FONT_SIZE // 2)
 
 # -------------------------------------------------- Classe principale du puzzle --------------------------------------------
 class NPuzzle:
-    def __init__(self, grid_size, swap_interval):
+    def __init__(self, grid_size, swap_after=None):
         self.grid_size = grid_size
-        self.swap_interval = swap_interval
+        self.swap_after = swap_after
         puzzle_area_width = SCREEN_WIDTH - SIDE_PANEL_WIDTH
         self.tile_size = min(puzzle_area_width, SCREEN_HEIGHT) // grid_size
         self.grid = self.generate_solvable_puzzle()
         self.empty_pos = self.find_empty_tile()
         self.move_count = 0
+        self.swap_mode = False
 
     def generate_solvable_puzzle(self):
         nums = list(range(self.grid_size ** 2))
@@ -58,11 +58,23 @@ class NPuzzle:
                     return i, j
 
     def move(self, direction):
+        if self.swap_after and self.move_count >= self.swap_after:
+            self.swap_mode = True
+            
         x, y = self.empty_pos
         dx, dy = direction
         new_x, new_y = x + dx, y + dy
+        
+        #SWAP
         if 0 <= new_x < self.grid_size and 0 <= new_y < self.grid_size:
-            self.grid[x][y], self.grid[new_x][new_y] = self.grid[new_x][new_y], self.grid[x][y]
+            if self.swap_mode:
+                # En mode swap, on peut échanger n'importe quelles tuiles adjacentes
+                self.grid[x][y], self.grid[new_x][new_y] = self.grid[new_x][new_y], self.grid[x][y]
+            else:
+                # Mode normal : seulement la case vide peut être déplacée
+                if self.grid[x][y] == 0:
+                    self.grid[x][y], self.grid[new_x][new_y] = self.grid[new_x][new_y], self.grid[x][y]
+                
             self.empty_pos = (new_x, new_y)
             self.move_count += 1
 
@@ -150,6 +162,7 @@ def main_menu():
         button_corner_radius = 20
         button_y_position = 600 // 2  # Position des boutons sur l'axe vertical
         title_y_position = button_y_position - button_height - 20
+        starting_y = 600 // 2 - 20
         
         # Choix
         title = arcade_font.render("Choisissez la taille du puzzle", True, WHITE)
@@ -162,56 +175,46 @@ def main_menu():
         screen.blit(puzzletxt, puzzletxt_rect)
 
         #Bouton    
-        button_3x3 = pygame.Rect(
-            (400 // 2 - button_gap - button_width),
-             600 // 2,
-             button_width,
-             button_height,
-            )
-        
-        button_4x4 = pygame.Rect(
-            (400 // 2 + button_gap),
-            600 // 2,
-            button_width,
-            button_height,
-            )
+        button_3x3 = pygame.Rect((400 - button_width) // 2, starting_y, button_width, button_height)
+        button_3x3_swap = pygame.Rect((400 - button_width) // 2, starting_y + button_height + button_gap, button_width, button_height)
+        button_4x4 = pygame.Rect((400 - button_width) // 2, starting_y + (button_height + button_gap) * 2, button_width, button_height)
 
-        pygame.draw.rect(screen, BUTTON_COLOR, button_3x3, border_radius=button_corner_radius)
-        pygame.draw.rect(screen, BUTTON_COLOR, button_4x4, border_radius=button_corner_radius)
+        for button in [button_3x3, button_3x3_swap, button_4x4]:
+            pygame.draw.rect(screen, BUTTON_COLOR, button, border_radius=button_corner_radius)
 
         #Texte des boutons
-        text_3x3 = font.render("3x3", True, BLACK)
-        text_4x4 = font.render("4x4", True, BLACK)
+        text_3x3 = font.render("3x3 Classic", True, BLACK)
+        text_3x3_swap = font.render("3x3 Swap(10)", True, BLACK)
+        text_4x4 = font.render("4x4 Swap(4)", True, BLACK)
         
         # Centrage du texte dans les boutons
-        text_3x3_rect = text_3x3.get_rect(center=button_3x3.center)
-        text_4x4_rect = text_4x4.get_rect(center=button_4x4.center)
-
-        screen.blit(text_3x3, text_3x3_rect)
-        screen.blit(text_4x4, text_4x4_rect)
-        
+        for button, text in zip([button_3x3, button_3x3_swap, button_4x4], 
+                              [text_3x3, text_3x3_swap, text_4x4]):
+            text_rect = text.get_rect(center=button.center)
+            screen.blit(text, text_rect)
+            
         pygame.display.flip()
 
         # Gestion des événements
-        mouse_over_button = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-                return None
+                return None, None
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = pygame.mouse.get_pos()
                 if button_3x3.collidepoint(x, y):
-                    return 3
+                    return 3, None
+                elif button_3x3_swap.collidepoint(x, y):
+                    return 3, 10
                 elif button_4x4.collidepoint(x, y):
-                    return 4
+                    return 4, 4
                
         # Vérifier si la souris survole un bouton
         mouse_pos = pygame.mouse.get_pos()
-        if button_3x3.collidepoint(mouse_pos) or button_4x4.collidepoint(mouse_pos):
-            pygame.mouse.set_cursor(pointer_cursor)  # Curseur "main pointer"
-            mouse_over_button = True
+        if any(button.collidepoint(mouse_pos) for button in [button_3x3, button_3x3_swap, button_4x4]):
+            pygame.mouse.set_cursor(pointer_cursor)
         else:
-            pygame.mouse.set_cursor(default_cursor)  # Curseur par défaut
+            pygame.mouse.set_cursor(default_cursor)
      
 
 # --------------------------------------------- Affichage de la grille du jeu ----------------------------------------------
@@ -225,8 +228,8 @@ def draw_grid(screen, puzzle, show_solve_button):
     side_panel = pygame.Rect(SCREEN_WIDTH - SIDE_PANEL_WIDTH, 0, SIDE_PANEL_WIDTH, SCREEN_HEIGHT)
     pygame.draw.rect(screen, BACKGROUND_COLOR, side_panel)
     
-    # Débogage visuel (contour bleu du panneau latéral)
-    pygame.draw.rect(screen, DEBUG_COLOR, side_panel, 2)  # Contour noir pour le panneau
+    """ Débogage visuel (contour bleu du panneau latéral)
+    pygame.draw.rect(screen, DEBUG_COLOR, side_panel, 2)  # Contour noir pour le panneau"""
 
     # Grille pour le puzzle
     for i in range(puzzle.grid_size):
@@ -245,6 +248,18 @@ def draw_grid(screen, puzzle, show_solve_button):
                 text = font.render(str(value), True, BLACK)
                 text_rect = text.get_rect(center=rect.center)
                 screen.blit(text, rect.center)
+                
+    # Affichage du mode swap
+    if puzzle.swap_mode:
+        swap_text = arcade_font.render("MODE SWAP ACTIF", True, WHITE)
+        swap_rect = swap_text.get_rect(centerx=SCREEN_WIDTH - SIDE_PANEL_WIDTH/2, top=20)
+        screen.blit(swap_text, swap_rect)
+    elif puzzle.swap_after:
+        moves_left = puzzle.swap_after - puzzle.move_count
+        if moves_left > 0:
+            swap_text = arcade_font.render(f"SWAP DANS: {moves_left}", True, WHITE)
+            swap_rect = swap_text.get_rect(centerx=SCREEN_WIDTH - SIDE_PANEL_WIDTH/2, top=20)
+            screen.blit(swap_text, swap_rect)
                 
     # Calcul de la largeur du panneau latéral pour le centrage
     panel_left = SCREEN_WIDTH - SIDE_PANEL_WIDTH
@@ -337,7 +352,7 @@ def draw_grid(screen, puzzle, show_solve_button):
     if show_solve_button:
         solve_button = pygame.Rect(SCREEN_WIDTH - SIDE_PANEL_WIDTH + 10, SCREEN_HEIGHT - 100, SIDE_PANEL_WIDTH - 20, 50)
         pygame.draw.rect(screen, BUTTON_COLOR, solve_button)
-        text_solve = font.render("Mode Auto", True, BLACK)
+        text_solve = font.render("AUTO", True, BLACK)
         text_rect = text_solve.get_rect(center=solve_button.center)
         screen.blit(text_solve, text_rect)
 
@@ -346,7 +361,7 @@ def draw_grid(screen, puzzle, show_solve_button):
 
 # --- Main ---
 def main():
-    grid_size = main_menu()
+    grid_size, swap_after = main_menu()
     if grid_size is None:
         pygame.quit()
         return
@@ -354,12 +369,12 @@ def main():
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("LOL Puzzle")
 
-    puzzle = NPuzzle(grid_size, SWAP_INTERVAL)
+    puzzle = NPuzzle(grid_size, swap_after)
     clock = pygame.time.Clock()
     running = True
 
     while running:
-        show_solve_button = grid_size == 3
+        show_solve_button = grid_size == 3 and not puzzle.swap_mode
         solve_button = draw_grid(screen, puzzle, show_solve_button)
 
         if puzzle.is_solved():
