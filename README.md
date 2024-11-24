@@ -1,16 +1,13 @@
 # Puzzle Game (8-Puzzle & 15-Puzzle)
 
-Bienvenue dans le projet **Puzzle Game** ! Ce jeu est développé en Python avec Pygame et peut être exécuté dans un environnement Docker de maniere simple et fiable.
-a - Choisissez entre le puzzle 3x3 ou 4x4.
-b - Jouer : deplacez les tuiles pour resoudre les puzzles.
-c - AI : Resoudre le puzzle automatiquement.
+Bienvenue dans le projet **Puzzle Game** ! Ce jeu est développé en Python avec Pygame et peut être exécuté dans un environnement Docker de maniere simple et fiable.<br>a - Choisissez entre le puzzle 3x3 ou 4x4.<br>b - Jouer : deplacez les tuiles pour resoudre les puzzles.<br>c - AI : Resoudre le puzzle automatiquement.
 
 ## Prérequis
 
 Avant de commencer, assurez-vous d'avoir installé :
 - [Docker](https://www.docker.com/)
 - [Git](https://git-scm.com/)
-- [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install) Si Windows
+- [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install)
 
 ### 1. Cloner le dépôt
 Utilisez la commande suivante pour cloner ce dépôt sur votre machine :
