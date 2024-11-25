@@ -205,11 +205,11 @@ def main_menu():
     
     # Charger le logo
     logo_image = pygame.image.load(LOGO_IMAGE_PATH)
-    logo_image = pygame.transform.scale(logo_image, (100, 200))
-    logo_rect = logo_image.get_rect(center=(400 // 2, 600 // 8))
+    logo_image = pygame.transform.scale(logo_image, (200, 400))
+    logo_rect = logo_image.get_rect(center=(400 // 2, 600 // 4))
     
     # Charger l'image du cadre
-    y_offset = 40
+    y_offset = 50
     frame_image = pygame.image.load(FRAME_IMAGE_PATH)
     frame_image = pygame.transform.scale(frame_image, (320 , 900))
     frame_rect = frame_image.get_rect(center=(400 // 2, 600 // 3 + y_offset))
@@ -265,8 +265,9 @@ def main_menu():
         
         # Nom du Jeu
         puzzletxt = arcade_font.render("PUZZLE", True, WHITE)
-        puzzletxt_rect = puzzletxt.get_rect(center=(logo_rect.centerx, logo_rect.bottom + 5))
-        screen.blit(puzzletxt, puzzletxt_rect)
+        puzzletxt_rect = puzzletxt.get_rect()
+        puzzletxt_rect.centerx = logo_rect.centerx  # Centré horizontalement avec le logo
+        puzzletxt_rect.top = logo_rect.bottom + 5   # 5 pixels sous le logo
 
         k_prompt = arcade_font.render(f"SWAP (K): {k_value}", True, WHITE)
         k_rect = k_prompt.get_rect(center=(400 // 2, 380))
@@ -455,14 +456,14 @@ def draw_grid(screen, puzzle, show_solve_button):
         text_y += text_rect.height + 5
 
     # Bouton de resolution automatique du puzzle
-        solve_button = pygame.Rect(SCREEN_WIDTH - SIDE_PANEL_WIDTH + 10, SCREEN_HEIGHT - 100, SIDE_PANEL_WIDTH - 20, 50)
+        solve_button = pygame.Rect(SCREEN_WIDTH - SIDE_PANEL_WIDTH + 10, SCREEN_HEIGHT - 130, SIDE_PANEL_WIDTH - 20, 50)
         pygame.draw.rect(screen, BUTTON_COLOR, solve_button)
         text_solve = font.render("AUTO", True, BLACK)
         text_rect = text_solve.get_rect(center=solve_button.center)
         screen.blit(text_solve, text_rect)
         
     # Affichage du mode swap
-    swap_y = SCREEN_HEIGHT - 40 
+    swap_y = SCREEN_HEIGHT - 70 
     if puzzle.swap_mode:
             # Afficher SWAP ACTIF
             swap_text = arcade_font_small.render("SWAP ACTIF", True, WHITE)
@@ -479,7 +480,7 @@ def draw_grid(screen, puzzle, show_solve_button):
     # Calcul des dimensions pour les trois boutons
     button_width = (SIDE_PANEL_WIDTH - 40) // 3  # 40 pixels pour les marges (20px de chaque côté)
     button_height = 30
-    button_y = SCREEN_HEIGHT - 150  # Position Y des boutons (au-dessus du bouton AUTO)
+    button_y = SCREEN_HEIGHT - 40  # Position Y des boutons (au-dessus du bouton AUTO)
     spacing = 10  # Espacement entre les boutons
     
     # Position X initiale (commence depuis la gauche du panneau)
@@ -487,22 +488,19 @@ def draw_grid(screen, puzzle, show_solve_button):
     
     # Bouton Reset
     reset_button = pygame.Rect(start_x, button_y, button_width, button_height)
-    pygame.draw.rect(screen, BUTTON_COLOR, reset_button, border_radius=5)
-    reset_text = arcade_font_small.render("RESET", True, BLACK)
+    reset_text = arcade_font_small.render("RESET", True, WHITE)
     reset_text_rect = reset_text.get_rect(center=reset_button.center)
     screen.blit(reset_text, reset_text_rect)
     
     # Bouton Menu
     menu_button = pygame.Rect(start_x + button_width + spacing, button_y, button_width, button_height)
-    pygame.draw.rect(screen, BUTTON_COLOR, menu_button, border_radius=5)
-    menu_text = arcade_font_small.render("MENU", True, BLACK)
+    menu_text = arcade_font_small.render("MENU", True, WHITE)
     menu_text_rect = menu_text.get_rect(center=menu_button.center)
     screen.blit(menu_text, menu_text_rect)
     
     # Bouton Quit
     quit_button = pygame.Rect(start_x + 2 * (button_width + spacing), button_y, button_width, button_height)
-    pygame.draw.rect(screen, BUTTON_COLOR, quit_button, border_radius=5)
-    quit_text = arcade_font_small.render("QUIT", True, BLACK)
+    quit_text = arcade_font_small.render("QUITTER", True, WHITE)
     quit_text_rect = quit_text.get_rect(center=quit_button.center)
     screen.blit(quit_text, quit_text_rect)
 
