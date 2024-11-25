@@ -11,11 +11,14 @@ SCREEN_HEIGHT = 400  # Hauteur de l'écran
 SIDE_PANEL_WIDTH = 200
 FONT_SIZE = 20
 
+# Chemin de base des ressources
+ASSETS_DIR = os.path.join(os.path.dirname(__file__), 'assets')
+
 # Path des images et des fonts
-LOGO_IMAGE_PATH = "assets/icons/lol.png" 
-FOOTER_IMAGE_PATH = "assets/backgrounds/grille.png"
-FRAME_IMAGE_PATH = "assets/backgrounds/cadre.png"
-ARCADE_FONT_PATH = "assets/fonts/arcade.ttf"
+LOGO_IMAGE_PATH = os.path.join(ASSETS_DIR, 'icons', 'lol.png') 
+FOOTER_IMAGE_PATH = os.path.join(ASSETS_DIR, 'backgrounds', 'grille.png')
+FRAME_IMAGE_PATH = os.path.join(ASSETS_DIR, 'backgrounds', 'cadre.png')
+ARCADE_FONT_PATH = os.path.join(ASSETS_DIR, 'fonts', 'arcade.ttf')
 
 # Initialisation des couleurs
 BACKGROUND_COLOR = (14, 22, 35)
@@ -41,7 +44,8 @@ class NPuzzle:
         self.tile_size = min(puzzle_area_width, SCREEN_HEIGHT) // grid_size
         self.grid = self.generate_solvable_puzzle()
         self.empty_pos = self.find_empty_tile()
-        self.move_count = 0
+        self.total_moves = 0  # Compteur total de mouvements
+        self.move_count = 0   # Compteur pour le swap
         self.swap_mode = False
 
     def generate_solvable_puzzle(self):
@@ -83,7 +87,8 @@ class NPuzzle:
                     self.grid[x][y], self.grid[new_x][new_y] = self.grid[new_x][new_y], self.grid[x][y]
                 
             self.empty_pos = (new_x, new_y)
-            self.move_count += 1
+            self.total_moves += 1  # Incrémenter le total
+            self.move_count += 1   # Incrémenter pour le swap
             
             # Activer le mode swap après le nombre requis de déplacements
             if self.swap_after and self.move_count >= self.swap_after:
@@ -229,7 +234,6 @@ def main_menu():
     scrolling_text = "Développé par:  Prosper, HARITIANA, Feno, Toby, Daddy, Tsinjo!"
     text_scroll = font.render(scrolling_text, True, WHITE)
     text_width = text_scroll.get_width()
-    text_height = text_scroll.get_height()
     
     # Position initiale du texte défilant
     text_x = 400  # Commence à droite
@@ -343,7 +347,7 @@ def main_menu():
      
 
 # --------------------------------------------- Affichage de la grille du jeu ----------------------------------------------
-def draw_grid(screen, puzzle, show_solve_button):
+def draw_grid(screen, puzzle, show_solve_button, start_time):
  
     # Efface uniquement la zone de la grille
     grid_area = pygame.Rect(0, 0, SCREEN_WIDTH - SIDE_PANEL_WIDTH, SCREEN_HEIGHT)
@@ -377,9 +381,9 @@ def draw_grid(screen, puzzle, show_solve_button):
     # Calcul de la largeur du panneau latéral pour le centrage
     panel_left = SCREEN_WIDTH - SIDE_PANEL_WIDTH
     
-    # Stats 
-    start_time = time.time() 
-    stats_txt = arcade_font_small.render(f"Mouvs: {puzzle.move_count} Temps: {int(time.time() - start_time)}s", True, WHITE)
+    # Stats  
+    tmp = int(time.time() - start_time)
+    stats_txt = arcade_font_small.render(f"Mouvs: {puzzle.total_moves} Temps: {tmp}s", True, WHITE)
     stats_rect = stats_txt.get_rect()
     stats_rect.centerx = panel_left + (SIDE_PANEL_WIDTH // 2)
     stats_rect.top = 10
@@ -553,25 +557,23 @@ def main():
     puzzle = NPuzzle(grid_size, swap_after)
     clock = pygame.time.Clock()
     running = True
+    start_time = time.time() 
+    solving = False  # Flag pour indiquer si la résolution est en cours
     
-    # Ajout du temps de début
-    start_time = time.time()
-    moves_count = 0
-
     while running:
-        solve_button, reset_button, menu_button, quit_button = draw_grid(screen, puzzle, True)
+        solve_button, reset_button, menu_button, quit_button = draw_grid(screen, puzzle, True, start_time) 
 
         if puzzle.is_solved():
             # Calculer le temps et les mouvements
             end_time = time.time()
             completion_time = end_time - start_time
-            moves_count = puzzle.move_count
+            moves_count = puzzle.total_moves
             
             # Créer le fichier SVG
-            svg_path = create_stats_svg(completion_time, moves_count, grid_size)
+            svg_path = stats_svg(completion_time, moves_count, grid_size)
             
             # Afficher la fenêtre de statistiques
-            open_button, restart_button = show_stats_window(screen, completion_time, moves_count, svg_path)
+            open_button, restart_button = stats_file(screen, completion_time, moves_count, svg_path)
             pygame.display.flip()
             
             # Attendre l'action de l'utilisateur
@@ -581,7 +583,7 @@ def main():
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         x, y = pygame.mouse.get_pos()
                     if open_button.collidepoint(x, y):
-                        open_file_location(os.path.dirname(svg_path))
+                        file_location(os.path.dirname(svg_path))
                     elif restart_button.collidepoint(x, y):
                         return main()  # Redémarrer le jeu
                     elif event.type == pygame.QUIT:
@@ -591,7 +593,7 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            elif event.type == pygame.KEYDOWN:
+            elif event.type == pygame.KEYDOWN and not solving:
                 if event.key == pygame.K_DOWN:
                     puzzle.move((-1, 0))
                 elif event.key == pygame.K_UP:
@@ -600,15 +602,18 @@ def main():
                     puzzle.move((0, -1))
                 elif event.key == pygame.K_LEFT:
                     puzzle.move((0, 1))
-            elif event.type == pygame.MOUSEBUTTONDOWN:
+            elif event.type == pygame.MOUSEBUTTONDOWN and not solving:
                 x, y = pygame.mouse.get_pos()
                 if solve_button.collidepoint(x, y):
+                    solving = True
                     solution = solve_puzzle(puzzle.grid)
                     if solution:
                         for move in solution:
                             puzzle.move(move)
-                            draw_grid(screen, puzzle, True)
-                            pygame.time.wait(300)
+                            draw_grid(screen, puzzle, True, start_time)
+                            pygame.time.wait(200)
+                            pygame.event.pump()  # Maintenir la réactivité
+                            solving = False
                 elif reset_button.collidepoint(x, y):
                     # Réinitialiser le puzzle
                     puzzle = NPuzzle(grid_size, swap_after)
@@ -619,9 +624,9 @@ def main():
                     running = False
 
         clock.tick(30)
-        
+        pygame.display.flip()
 #------------------------Creation du fichier SVG -----------------------------------------
-def create_stats_svg(completion_time, moves_count, grid_size):
+def stats_svg(completion_time, moves_count, grid_size):
     svg_content = f'''<?xml version="1.0" encoding="UTF-8"?>
     <svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
         <style>
@@ -645,8 +650,8 @@ def create_stats_svg(completion_time, moves_count, grid_size):
     
     return filepath
 
-#-------------------------
-def show_stats_window(screen, completion_time, moves_count, svg_path):
+#-------------------------Fenetre stats final------------------------------------------------------------------------
+def stats_file(screen, completion_time, moves_count, svg_path):
     # Créer une surface pour la fenêtre de statistiques
     stats_window = pygame.Surface((300, 200))
     stats_window.fill(BUTTON_COLOR)
@@ -682,7 +687,8 @@ def show_stats_window(screen, completion_time, moves_count, svg_path):
     
     return open_button, restart_button
 
-def open_file_location(path):
+#----------------------- Path du fichier SVG ----------------------------------------------------------------
+def file_location(path):
     if os.name == 'nt':  # Windows
         os.startfile(path)
     elif os.name == 'posix':  # Linux/Mac

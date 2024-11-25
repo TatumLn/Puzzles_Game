@@ -1,3 +1,6 @@
 pygame  
 pytest
+heapq
 os
+time
+subprocess
