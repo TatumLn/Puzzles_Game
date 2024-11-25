@@ -223,6 +223,17 @@ def main_menu():
     default_cursor = pygame.SYSTEM_CURSOR_ARROW
     pointer_cursor = pygame.SYSTEM_CURSOR_HAND
     
+    # Texte défilant
+    scrolling_text = "Développé par: Prosper, HARITIANA, Feno, Toby, Daddy, Tsinjo!"
+    text_scroll = font.render(scrolling_text, True, WHITE)
+    text_width = text_scroll.get_width()
+    text_height = text_scroll.get_height()
+    
+    # Position initiale du texte défilant
+    text_x = 400  # Commence à droite
+    text_y = 550  # Position verticale pour le footer
+    scroll_speed = 0.5  # Vitesse de défilement
+    
     # Valeur par défaut de k : nombre de deplacement avant lactivation du SWAP
     k_value = 10
     
@@ -288,7 +299,16 @@ def main_menu():
 
         screen.blit(font.render("+", True, BLACK), k_increase.center)
         screen.blit(font.render("-", True, BLACK), k_decrease.center)
+        
+        # Animation de defilement des developpeurs du JEU
+        # Défilement du texte
+        text_x -= scroll_speed
+        if text_x + text_width < 0:  # Réinitialiser le texte lorsqu'il sort de l'écran
+            text_x = 400
+        screen.blit(text_scroll, (text_x, text_y))
+        
         pygame.display.flip()
+        
 
         # Gestion des événements
         for event in pygame.event.get():
