@@ -670,7 +670,7 @@ def stats_file(screen, completion_time, moves_count, svg_path):
     # Bouton Ouvrir
     open_button = pygame.Rect(stats_window_rect.centerx - button_width - button_spacing//2, buttons_y, button_width, button_height)
     pygame.draw.rect(screen, WHITE, open_button)
-    open_text = arcade_font.render("OUVRIR", True, BLACK)
+    open_text = arcade_font.render("SVG", True, BLACK)
     
     # Bouton Recommencer à droite
     restart_button = pygame.Rect(stats_window_rect.centerx + button_spacing//2,
