@@ -90,39 +90,108 @@ class NPuzzle:
         expected = list(range(1, self.grid_size ** 2)) + [0]
         return self.grid == [expected[i:i + self.grid_size] for i in range(0, len(expected), self.grid_size)]
 
-# ------------------------------------------------- Algorithme de résolution automatique  --------------------------------
+# ------------------------------------------------- Algorithme de résolution automatique  A*------------------------------------------
 def solve_puzzle(grid):
-    def heuristic(grid):
-        dist = 0
-        for i in range(len(grid)):
-            for j in range(len(grid[0])):
+    
+    def get_position(value, grid_size):
+        if value == 0:
+            return grid_size - 1, grid_size - 1
+        value -= 1
+        return value // grid_size, value % grid_size
+
+    # Distance de manhattan
+    def manhattan_distance(grid):
+        grid_size = len(grid)
+        distance = 0
+        for i in range(grid_size):
+            for j in range(grid_size):
                 value = grid[i][j]
                 if value != 0:
-                    target_x, target_y = (value - 1) // len(grid), (value - 1) % len(grid)
-                    dist += abs(i - target_x) + abs(j - target_y)
-        return dist
+                    target_x, target_y = get_position(value, grid_size)
+                    distance += abs(i - target_x) + abs(j - target_y)
+        return distance
 
-    goal = [[(i * len(grid) + j + 1) % (len(grid) ** 2) for j in range(len(grid))] for i in range(len(grid))]
-    frontier = [(heuristic(grid), 0, grid, [])]
-    visited = set()
+    # Conflit lineaire
+    def get_linear_conflicts(grid):
+        grid_size = len(grid)
+        conflicts = 0
+        
+        # Verification des lignes
+        for i in range(grid_size):
+            for j in range(grid_size):
+                if grid[i][j] == 0:
+                    continue
+                target_x, _ = get_position(grid[i][j], grid_size)
+                if target_x == i:
+                    for k in range(j + 1, grid_size):
+                        if grid[i][k] != 0:
+                            target_x_k, _ = get_position(grid[i][k], grid_size)
+                            if target_x_k == i and grid[i][j] > grid[i][k]:
+                                conflicts += 2
 
-    while frontier:
-        _, cost, current, path = heapq.heappop(frontier)
-        if tuple(map(tuple, current)) in visited:
-            continue
-        visited.add(tuple(map(tuple, current)))
-        if current == goal:
+        # Verification des colonnes
+        for j in range(grid_size):
+            for i in range(grid_size):
+                if grid[i][j] == 0:
+                    continue
+                _, target_y = get_position(grid[i][j], grid_size)
+                if target_y == j:  # Tile is in correct column
+                    for k in range(i + 1, grid_size):
+                        if grid[k][j] != 0:
+                            _, target_y_k = get_position(grid[k][j], grid_size)
+                            if target_y_k == j and grid[i][j] > grid[k][j]:
+                                conflicts += 2
+
+        return conflicts
+    
+    # Heuristique
+    def heuristic(grid):
+        return manhattan_distance(grid) + get_linear_conflicts(grid)
+    
+    def get_state_string(grid):
+        return ''.join(str(cell) for row in grid for cell in row)
+
+    grid_size = len(grid)
+    initial_state = [row[:] for row in grid]
+    goal_state = [[i * grid_size + j + 1 for j in range(grid_size)] for i in range(grid_size)]
+    goal_state[-1][-1] = 0
+
+    queue = [(heuristic(initial_state), 0, initial_state, [])]
+    visited = {get_state_string(initial_state)}
+    
+    while queue and len(queue) < 100000:  # Prevent infinite loops
+        _, cost, current, path = heapq.heappop(queue)
+        
+        if current == goal_state:
             return path
 
-        empty_x, empty_y = next((i, j) for i, row in enumerate(current) for j, v in enumerate(row) if v == 0)
+        # Find empty tile
+        empty_x, empty_y = None, None
+        for i in range(grid_size):
+            for j in range(grid_size):
+                if current[i][j] == 0:
+                    empty_x, empty_y = i, j
+                    break
+            if empty_x is not None:
+                break
+
+        # Essayer toutes les deplacements possibles
         for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
             new_x, new_y = empty_x + dx, empty_y + dy
-            if 0 <= new_x < len(current) and 0 <= new_y < len(current[0]):
-                new_grid = [row[:] for row in current]
-                new_grid[empty_x][empty_y], new_grid[new_x][new_y] = new_grid[new_x][new_y], new_grid[empty_x][empty_y]
-                heapq.heappush(frontier, (heuristic(new_grid) + cost + 1, cost + 1, new_grid, path + [(dx, dy)]))
+            
+            if 0 <= new_x < grid_size and 0 <= new_y < grid_size:
+                # Creer une nouvelle etat
+                new_state = [row[:] for row in current]
+                new_state[empty_x][empty_y], new_state[new_x][new_y] = new_state[new_x][new_y], new_state[empty_x][empty_y]
+                
+                state_string = get_state_string(new_state)
+                if state_string not in visited:
+                    visited.add(state_string)
+                    h_score = heuristic(new_state)
+                    heapq.heappush(queue, (h_score + cost + 1, cost + 1, new_state, path + [(dx, dy)]))
 
-    return None
+    # Pas de solution possible
+    return None  
 
 # ------------------------------------------------- Menu principal ---------------------------------------------------------
 def main_menu():
@@ -156,9 +225,9 @@ def main_menu():
     # Calcul des positions boutons et du titre
     button_width = 120
     button_height = 20
-    button_spacing = 20  # Espace entre les boutons 3x3
+    button_spacing = 20
     center_x = 400 // 2
-    title_y = 250  # Position du titre
+    title_y = 250
     buttons_start_y = title_y + 30
 
     buttons = [
@@ -251,7 +320,7 @@ def draw_grid(screen, puzzle, show_solve_button):
  
     # Efface uniquement la zone de la grille
     grid_area = pygame.Rect(0, 0, SCREEN_WIDTH - SIDE_PANEL_WIDTH, SCREEN_HEIGHT)
-    pygame.draw.rect(screen, GRAY, grid_area)  # Fond gris pour la grille
+    pygame.draw.rect(screen, GRAY, grid_area)
     
     # Panneau lateral pour instruction et information
     side_panel = pygame.Rect(SCREEN_WIDTH - SIDE_PANEL_WIDTH, 0, SIDE_PANEL_WIDTH, SCREEN_HEIGHT)
@@ -405,9 +474,9 @@ def draw_grid(screen, puzzle, show_solve_button):
                 
     # Position du texte swap juste en dessous du bouton AUTO ou en bas si pas de bouton
             if show_solve_button:
-                swap_y = SCREEN_HEIGHT - 40  # En dessous du bouton AUTO
+                swap_y = SCREEN_HEIGHT - 40
             else:
-                swap_y = SCREEN_HEIGHT - 50  # Position par défaut si pas de bouton
+                swap_y = SCREEN_HEIGHT - 50
             
             swap_rect = swap_text.get_rect(
             centerx=SCREEN_WIDTH - SIDE_PANEL_WIDTH/2,
