@@ -401,7 +401,7 @@ def draw_grid(screen, puzzle, show_solve_button, start_time):
     
     # Première instruction avec licon rouge
     try:
-        red_yo = pygame.image.load("assets/icons/red-yo.png")
+        red_yo = pygame.image.load(os.path.join(ASSETS_DIR, 'icons', 'red-yo.png'))
         red_yo = pygame.transform.scale(red_yo, (15, 30))
         yo_icon_rect = red_yo.get_rect(left=panel_left + 10, top=y_offset)
         screen.blit(red_yo, yo_icon_rect)
@@ -441,7 +441,7 @@ def draw_grid(screen, puzzle, show_solve_button, start_time):
     
     # Deuxieme instruction avec licon rouge
     try:
-       pink_yo = pygame.image.load("assets/icons/pink-yo.png")
+       pink_yo = pygame.image.load(os.path.join(ASSETS_DIR, 'icons', 'pink-yo.png'))
        pink_yo = pygame.transform.scale(pink_yo, (15, 30))
        yo_icon_rect = pink_yo.get_rect(left=panel_left + 10, top=y_offset)
        screen.blit(pink_yo, yo_icon_rect)
@@ -467,7 +467,7 @@ def draw_grid(screen, puzzle, show_solve_button, start_time):
     
     # Troisieme instruction avec licon bleu
     try:
-       blue_yo = pygame.image.load("assets/icons/blue-yo.png")
+       blue_yo = pygame.image.load(os.path.join(ASSETS_DIR, 'icons', 'blue-yo.png'))
        blue_yo = pygame.transform.scale(blue_yo, (15, 30))
        yo_icon_rect = blue_yo.get_rect(left=panel_left + 10, top=y_offset)
        screen.blit(blue_yo, yo_icon_rect)
