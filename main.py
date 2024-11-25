@@ -1,6 +1,7 @@
 import pygame
 import random
 import heapq
+import os
 
 # Configurations de base 
 SCREEN_WIDTH = 600  # Largeur de l'écran
@@ -159,13 +160,16 @@ def solve_puzzle(grid):
     queue = [(heuristic(initial_state), 0, initial_state, [])]
     visited = {get_state_string(initial_state)}
     
-    while queue and len(queue) < 100000:  # Prevent infinite loops
+    # Augmenté la limite pour le 4x4
+    max_iterations = 200000 if grid_size == 4 else 100000
+    
+    while queue and len(queue) < max_iterations:  # Preventions des boucles infinies
         _, cost, current, path = heapq.heappop(queue)
         
         if current == goal_state:
             return path
 
-        # Find empty tile
+        # Trouver la tuile càvide
         empty_x, empty_y = None, None
         for i in range(grid_size):
             for j in range(grid_size):
@@ -451,8 +455,6 @@ def draw_grid(screen, puzzle, show_solve_button):
         text_y += text_rect.height + 5
 
     # Bouton de resolution automatique du puzzle
-    solve_button = None
-    if show_solve_button:
         solve_button = pygame.Rect(SCREEN_WIDTH - SIDE_PANEL_WIDTH + 10, SCREEN_HEIGHT - 100, SIDE_PANEL_WIDTH - 20, 50)
         pygame.draw.rect(screen, BUTTON_COLOR, solve_button)
         text_solve = font.render("AUTO", True, BLACK)
@@ -460,30 +462,53 @@ def draw_grid(screen, puzzle, show_solve_button):
         screen.blit(text_solve, text_rect)
         
     # Affichage du mode swap
+    swap_y = SCREEN_HEIGHT - 40 
     if puzzle.swap_mode:
-            swap_text = arcade_font.render("MODE SWAP ACTIF", True, WHITE)
-            swap_rect = swap_text.get_rect(centerx=SCREEN_WIDTH - SIDE_PANEL_WIDTH/2, top=20)
+            # Afficher SWAP ACTIF
+            swap_text = arcade_font_small.render("SWAP ACTIF", True, WHITE)
+            swap_rect = swap_text.get_rect(centerx=SCREEN_WIDTH - SIDE_PANEL_WIDTH/2, top=swap_y)
             screen.blit(swap_text, swap_rect)
+            
     elif puzzle.swap_after:
             # Afficher le compte à rebours avant le prochain swap
-            moves_left = puzzle.swap_after - puzzle.move_count
-            swap_text = arcade_font_small.render(f"SWAP DANS: {moves_left}", True, WHITE)
-            swap_y = SCREEN_HEIGHT - 40 if show_solve_button else SCREEN_HEIGHT - 50
+            compteur = puzzle.swap_after - puzzle.move_count
+            swap_text = arcade_font_small.render(f"SWAP DANS: {compteur}", True, WHITE)
             swap_rect = swap_text.get_rect(centerx=SCREEN_WIDTH - SIDE_PANEL_WIDTH / 2, top=swap_y)
             screen.blit(swap_text, swap_rect)
-                
-    # Position du texte swap juste en dessous du bouton AUTO ou en bas si pas de bouton
-            if show_solve_button:
-                swap_y = SCREEN_HEIGHT - 40
-            else:
-                swap_y = SCREEN_HEIGHT - 50
             
-            swap_rect = swap_text.get_rect(
-            centerx=SCREEN_WIDTH - SIDE_PANEL_WIDTH/2,
-            top=swap_y
-            )
-            screen.blit(swap_text, swap_rect)
+    # Calcul des dimensions pour les trois boutons
+    button_width = (SIDE_PANEL_WIDTH - 40) // 3  # 40 pixels pour les marges (20px de chaque côté)
+    button_height = 30
+    button_y = SCREEN_HEIGHT - 150  # Position Y des boutons (au-dessus du bouton AUTO)
+    spacing = 10  # Espacement entre les boutons
+    
+    # Position X initiale (commence depuis la gauche du panneau)
+    start_x = SCREEN_WIDTH - SIDE_PANEL_WIDTH + 10
+    
+    # Bouton Reset
+    reset_button = pygame.Rect(start_x, button_y, button_width, button_height)
+    pygame.draw.rect(screen, BUTTON_COLOR, reset_button, border_radius=5)
+    reset_text = arcade_font_small.render("RESET", True, BLACK)
+    reset_text_rect = reset_text.get_rect(center=reset_button.center)
+    screen.blit(reset_text, reset_text_rect)
+    
+    # Bouton Menu
+    menu_button = pygame.Rect(start_x + button_width + spacing, button_y, button_width, button_height)
+    pygame.draw.rect(screen, BUTTON_COLOR, menu_button, border_radius=5)
+    menu_text = arcade_font_small.render("MENU", True, BLACK)
+    menu_text_rect = menu_text.get_rect(center=menu_button.center)
+    screen.blit(menu_text, menu_text_rect)
+    
+    # Bouton Quit
+    quit_button = pygame.Rect(start_x + 2 * (button_width + spacing), button_y, button_width, button_height)
+    pygame.draw.rect(screen, BUTTON_COLOR, quit_button, border_radius=5)
+    quit_text = arcade_font_small.render("QUIT", True, BLACK)
+    quit_text_rect = quit_text.get_rect(center=quit_button.center)
+    screen.blit(quit_text, quit_text_rect)
 
+    pygame.display.flip()
+    return solve_button, reset_button, menu_button, quit_button
+                
     pygame.display.flip()
     return solve_button
 
@@ -502,8 +527,7 @@ def main():
     running = True
 
     while running:
-        show_solve_button = grid_size == 3 and not puzzle.swap_mode
-        solve_button = draw_grid(screen, puzzle, show_solve_button)
+        solve_button, reset_button, menu_button, quit_button = draw_grid(screen, puzzle, True)
 
         if puzzle.is_solved():
             text = font.render("Vous avez gagné!", True, BLACK)
@@ -532,8 +556,17 @@ def main():
                     if solution:
                         for move in solution:
                             puzzle.move(move)
-                            draw_grid(screen, puzzle, show_solve_button)
+                            draw_grid(screen, puzzle, True)
                             pygame.time.wait(300)
+                elif reset_button.collidepoint(x, y):
+                    # Réinitialiser le puzzle
+                    puzzle = NPuzzle(grid_size, swap_after)
+                elif menu_button.collidepoint(x, y):
+                    # Retourner au menu principal
+                    return main()
+                elif quit_button.collidepoint(x, y):
+                    # Quitter le jeu
+                    running = False
 
         clock.tick(30)
 
