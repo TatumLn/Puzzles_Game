@@ -2,6 +2,8 @@ import pygame
 import random
 import heapq
 import os
+import time
+import subprocess
 
 # Configurations de base 
 SCREEN_WIDTH = 600  # Largeur de l'écran
@@ -195,7 +197,7 @@ def solve_puzzle(grid):
                     heapq.heappush(queue, (h_score + cost + 1, cost + 1, new_state, path + [(dx, dy)]))
 
     # Pas de solution possible
-    return None  
+    return None
 
 # ------------------------------------------------- Menu principal ---------------------------------------------------------
 def main_menu():
@@ -224,14 +226,14 @@ def main_menu():
     pointer_cursor = pygame.SYSTEM_CURSOR_HAND
     
     # Texte défilant
-    scrolling_text = "Développé par: Prosper, HARITIANA, Feno, Toby, Daddy, Tsinjo!"
+    scrolling_text = "Développé par:  Prosper, HARITIANA, Feno, Toby, Daddy, Tsinjo!"
     text_scroll = font.render(scrolling_text, True, WHITE)
     text_width = text_scroll.get_width()
     text_height = text_scroll.get_height()
     
     # Position initiale du texte défilant
     text_x = 400  # Commence à droite
-    text_y = 550  # Position verticale pour le footer
+    text_y = 585  # Position verticale pour le footer
     scroll_speed = 0.5  # Vitesse de défilement
     
     # Valeur par défaut de k : nombre de deplacement avant lactivation du SWAP
@@ -254,8 +256,8 @@ def main_menu():
     # Boutons pour modifier K
     k_button_size = 30
     k_spacing = 1  # Réduire l'espace
-    k_increase = pygame.Rect(center_x + k_spacing + k_button_size // 2, 490, k_button_size, k_button_size)
-    k_decrease = pygame.Rect(center_x - k_spacing - k_button_size // 2 - k_button_size, 490, k_button_size, k_button_size)
+    k_increase = pygame.Rect(center_x + k_spacing + k_button_size // 2, 400, k_button_size, k_button_size)
+    k_decrease = pygame.Rect(center_x - k_spacing - k_button_size // 2 - k_button_size, 400, k_button_size, k_button_size)
     
     while running:
         screen.fill(BACKGROUND_COLOR)
@@ -374,12 +376,20 @@ def draw_grid(screen, puzzle, show_solve_button):
                 
     # Calcul de la largeur du panneau latéral pour le centrage
     panel_left = SCREEN_WIDTH - SIDE_PANEL_WIDTH
+    
+    # Stats 
+    start_time = time.time() 
+    stats_txt = arcade_font_small.render(f"Mouvs: {puzzle.move_count} Temps: {int(time.time() - start_time)}s", True, WHITE)
+    stats_rect = stats_txt.get_rect()
+    stats_rect.centerx = panel_left + (SIDE_PANEL_WIDTH // 2)
+    stats_rect.top = 10
+    screen.blit(stats_txt, stats_rect)
 
     # Titre "Instructions" centré
     instruct_txt = arcade_font.render("Instructions", True, WHITE)
     instruct_rect = instruct_txt.get_rect()
     instruct_rect.centerx = panel_left + (SIDE_PANEL_WIDTH // 2)
-    instruct_rect.top = 20
+    instruct_rect.top = 40
     screen.blit(instruct_txt, instruct_rect)
 
     # Instructions sur le JEU   
@@ -474,13 +484,6 @@ def draw_grid(screen, puzzle, show_solve_button):
         )
         screen.blit(text_surf, text_rect)
         text_y += text_rect.height + 5
-
-    # Bouton de resolution automatique du puzzle
-        solve_button = pygame.Rect(SCREEN_WIDTH - SIDE_PANEL_WIDTH + 10, SCREEN_HEIGHT - 130, SIDE_PANEL_WIDTH - 20, 50)
-        pygame.draw.rect(screen, BUTTON_COLOR, solve_button)
-        text_solve = font.render("AUTO", True, BLACK)
-        text_rect = text_solve.get_rect(center=solve_button.center)
-        screen.blit(text_solve, text_rect)
         
     # Affichage du mode swap
     swap_y = SCREEN_HEIGHT - 70 
@@ -496,6 +499,13 @@ def draw_grid(screen, puzzle, show_solve_button):
             swap_text = arcade_font_small.render(f"SWAP DANS: {compteur}", True, WHITE)
             swap_rect = swap_text.get_rect(centerx=SCREEN_WIDTH - SIDE_PANEL_WIDTH / 2, top=swap_y)
             screen.blit(swap_text, swap_rect)
+            
+    # Bouton de resolution automatique du puzzle
+    solve_button = pygame.Rect(SCREEN_WIDTH - SIDE_PANEL_WIDTH + 10, SCREEN_HEIGHT - 130, SIDE_PANEL_WIDTH - 20, 50)
+    pygame.draw.rect(screen, BUTTON_COLOR, solve_button)
+    text_solve = font.render("AUTO", True, BLACK)
+    text_rect = text_solve.get_rect(center=solve_button.center)
+    screen.blit(text_solve, text_rect)
             
     # Calcul des dimensions pour les trois boutons
     button_width = (SIDE_PANEL_WIDTH - 40) // 3  # 40 pixels pour les marges (20px de chaque côté)
@@ -543,17 +553,40 @@ def main():
     puzzle = NPuzzle(grid_size, swap_after)
     clock = pygame.time.Clock()
     running = True
+    
+    # Ajout du temps de début
+    start_time = time.time()
+    moves_count = 0
 
     while running:
         solve_button, reset_button, menu_button, quit_button = draw_grid(screen, puzzle, True)
 
         if puzzle.is_solved():
-            text = font.render("Vous avez gagné!", True, BLACK)
-            screen.blit(text, (SCREEN_WIDTH // 4, SCREEN_HEIGHT // 4))
+            # Calculer le temps et les mouvements
+            end_time = time.time()
+            completion_time = end_time - start_time
+            moves_count = puzzle.move_count
+            
+            # Créer le fichier SVG
+            svg_path = create_stats_svg(completion_time, moves_count, grid_size)
+            
+            # Afficher la fenêtre de statistiques
+            open_button, restart_button = show_stats_window(screen, completion_time, moves_count, svg_path)
             pygame.display.flip()
-            pygame.time.wait(3000)
-            running = False
-            continue
+            
+            # Attendre l'action de l'utilisateur
+            waiting_for_input = True
+            while waiting_for_input:
+                for event in pygame.event.get():
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        x, y = pygame.mouse.get_pos()
+                    if open_button.collidepoint(x, y):
+                        open_file_location(os.path.dirname(svg_path))
+                    elif restart_button.collidepoint(x, y):
+                        return main()  # Redémarrer le jeu
+                    elif event.type == pygame.QUIT:
+                        running = False
+                        waiting_for_input = False
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -569,7 +602,7 @@ def main():
                     puzzle.move((0, 1))
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = pygame.mouse.get_pos()
-                if solve_button and solve_button.collidepoint(x, y):
+                if solve_button.collidepoint(x, y):
                     solution = solve_puzzle(puzzle.grid)
                     if solution:
                         for move in solution:
@@ -579,17 +612,86 @@ def main():
                 elif reset_button.collidepoint(x, y):
                     # Réinitialiser le puzzle
                     puzzle = NPuzzle(grid_size, swap_after)
+                    start_time = time.time()  # Réinitialiser le temps
                 elif menu_button.collidepoint(x, y):
-                    # Retourner au menu principal
                     return main()
                 elif quit_button.collidepoint(x, y):
-                    # Quitter le jeu
                     running = False
 
         clock.tick(30)
+        
+#------------------------Creation du fichier SVG -----------------------------------------
+def create_stats_svg(completion_time, moves_count, grid_size):
+    svg_content = f'''<?xml version="1.0" encoding="UTF-8"?>
+    <svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+        <style>
+            text {{ font-family: Arial; fill: black; }}
+            .title {{ font-size: 24px; }}
+            .stats {{ font-size: 18px; }}
+        </style>
+        <rect width="100%" height="100%" fill="#f0f0f0"/>
+        <text x="200" y="50" text-anchor="middle" class="title">Statistiques du Puzzle</text>
+        <text x="50" y="100" class="stats">Taille du puzzle: {grid_size}x{grid_size}</text>
+        <text x="50" y="140" class="stats">Temps: {int(completion_time)} secondes</text>
+        <text x="50" y="180" class="stats">Mouvements: {moves_count}</text>
+    </svg>'''
+    
+    # Créer le dossier stats s'il n'existe pas
+    os.makedirs('stats', exist_ok=True)
+    filepath = f'stats/puzzle_stats_{int(time.time())}.svg'
+    
+    with open(filepath, 'w') as f:
+        f.write(svg_content)
+    
+    return filepath
+
+#-------------------------
+def show_stats_window(screen, completion_time, moves_count, svg_path):
+    # Créer une surface pour la fenêtre de statistiques
+    stats_window = pygame.Surface((300, 200))
+    stats_window.fill(BUTTON_COLOR)
+    stats_window_rect = stats_window.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2))
+    
+    # Texte des statistiques
+    time_text = arcade_font.render(f"Temps: {int(completion_time)} secondes", True, BLACK)
+    moves_text = arcade_font.render(f"Mouvements: {moves_count}", True, BLACK)
+    
+    # Deux boutons côte à côte
+    button_width = 100
+    button_height = 30 
+    button_spacing = 20
+    buttons_y = stats_window_rect.bottom - 40
+    
+    # Bouton Ouvrir
+    open_button = pygame.Rect(stats_window_rect.centerx - button_width - button_spacing//2, buttons_y, button_width, button_height)
+    pygame.draw.rect(screen, WHITE, open_button)
+    open_text = arcade_font.render("OUVRIR", True, BLACK)
+    
+    # Bouton Recommencer à droite
+    restart_button = pygame.Rect(stats_window_rect.centerx + button_spacing//2,
+                           buttons_y, button_width, button_height)  
+    pygame.draw.rect(screen, WHITE, restart_button)
+    restart_text = arcade_font.render("REJOUER", True, BLACK)
+    
+    # Afficher tout
+    screen.blit(stats_window, stats_window_rect)
+    screen.blit(time_text, (stats_window_rect.centerx - time_text.get_width()//2, stats_window_rect.top + 40))
+    screen.blit(moves_text, (stats_window_rect.centerx - moves_text.get_width()//2, stats_window_rect.top + 80))
+    screen.blit(open_text, (open_button.centerx - open_text.get_width()//2, open_button.centery - open_text.get_height()//2))
+    screen.blit(restart_text, (restart_button.centerx - restart_text.get_width()//2, restart_button.centery - restart_text.get_height()//2))
+    
+    return open_button, restart_button
+
+def open_file_location(path):
+    if os.name == 'nt':  # Windows
+        os.startfile(path)
+    elif os.name == 'posix':  # Linux/Mac
+        subprocess.Popen(['xdg-open', path])
 
     pygame.quit()
 
 # Exécution du menu principal
 if __name__ == "__main__":
     main()
+    
+pygame.quit()
