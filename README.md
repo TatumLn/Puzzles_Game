@@ -1,4 +1,5 @@
-# Puzzle Game (8-Puzzle & 15-Puzzle)
+# TP_1 : Puzzle Game (8-Puzzle & 15-Puzzle)
+# TP_2 : Classification et Clustering
 
 Bienvenue dans le projet **LOL Puzzle** ! Ce jeu est développé en Python avec Pygame et peut être exécuté dans un environnement Docker de maniere simple et fiable.<br>a - Choisissez entre le puzzle 3x3 ou 4x4.<br>b - Jouer : deplacez les tuiles pour résoudre les puzzles.<br>c - AI : Resoudre le puzzle automatiquement:<br>Pour la fonctionnalité de résolution automatique du N-puzzle, nous avons implémenté un algorithme heuristique basé sur les concepts suivants :
 #### Distance de Manhattan :
@@ -36,6 +37,9 @@ docker run -it --rm -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix puzzle-
 ```bash
 docker compose up
 ```
+
+### 3. Lancer les fichiers .ipynb avec JupiterNoteBook ou autres
+
 
 ## Contributeurs
 - [TatumLn](https://github.com/TatumLn): Front-End && OPS & Game-Logic
