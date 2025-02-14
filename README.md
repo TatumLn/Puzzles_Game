@@ -1,6 +1,6 @@
 # TP_1 : Puzzle Game (8-Puzzle & 15-Puzzle)
 
-Bienvenue dans le projet **LOL Puzzle** ! Ce jeu est développé en Python avec Pygame et peut être exécuté dans un environnement Docker de maniere simple et fiable.<br>a - Choisissez entre le puzzle 3x3 ou 4x4.<br>b - Jouer : deplacez les tuiles pour résoudre les puzzles.<br>c - AI : Resoudre le puzzle automatiquement:<br>Pour la fonctionnalité de résolution automatique du N-puzzle, nous avons implémenté un algorithme heuristique basé sur les concepts suivants :
+Bienvenue sur le projet **LOL Puzzle** ! Ce jeu est développé en Python avec Pygame et peut être exécuté dans un environnement Docker de maniere simple et fiable.<br>a - Choisissez entre le puzzle 3x3 ou 4x4.<br>b - Jouer : deplacez les tuiles pour résoudre les puzzles.<br>c - AI : Resoudre le puzzle automatiquement:<br>Pour la fonctionnalité de résolution automatique du N-puzzle, nous avons implémenté un algorithme heuristique basé sur les concepts suivants :
 #### Distance de Manhattan :
 Elle calcule la distance minimale entre la position actuelle d'une tuile et sa position cible en ne permettant que des déplacements horizontaux ou verticaux.
 #### Conflits linéaires :
