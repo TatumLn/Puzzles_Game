@@ -49,6 +49,12 @@ docker compose up
 - **Fichier `iris.ipynb`** : Présent dans le dossier `TP_2` Classification - Etude du dataset Iris.
 - **Fichier `instat.ipynb`** : Présent dans le dossier `TP_2` Clustering - Données Instat.
 
+# TP_3 : Computer Vision
+
+### Les Fichiers:
+- **Fichier ``*AutoEncoder.ipynb* : TP de groupe sur l'AutoEncoder. 
+- **Fichier ``*nom.ipynb* : TP individuel. 
+
 ## Contributeurs
 - [TatumLn](https://github.com/TatumLn): Front-End && OPS & Game-Logic
 - [Devkalix](https://github.com/Devkalix): Front-End & Game-Logic
