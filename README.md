@@ -1,12 +1,12 @@
-# 🎮 AI Tic-Tac-Toe Master
+# AI Tic-Tac-Toe Master
 
 A sophisticated tic-tac-toe game featuring advanced AI powered by machine learning and the minimax algorithm with alpha-beta pruning. Built with modern Python technologies and designed for an optimal user experience.
 
 ---
 
-## ✨ Features
+## Features
 
-- 🤖 **Enhanced AI**:
+- **Enhanced AI**:
   - Neural Network trained on GPU (99.41% accuracy)
   - Random Forest classifier (97.94% accuracy)
   - Enhanced Minimax with 12-level depth search
@@ -14,36 +14,44 @@ A sophisticated tic-tac-toe game featuring advanced AI powered by machine learni
   - Advanced threat detection and fork analysis
   - Transposition table for position caching
 
-- 🎨 **Modern GUI**:
+- **Modern GUI**:
   - Clean, dark-themed interface
   - Intuitive controls with smooth UX
 
-- 👥 **Game Modes**:
+- **Game Modes**:
   - Human vs AI (Easy / Medium / Hard)
   - Human vs Human
 
-- 🎮 **Controls**:
-  - 🔄 New Game
-  - ⏮️ Replay
-  - ↩️ Undo (smart undo for AI)
-  - 🚪 Exit
-  - 🏠 Main Menu
+- **Controls**:
+  - New Game
+  - ⏮Replay
+  - ↩Undo (smart undo for AI)
+  - Exit
+  - Main Menu
 
-- 📊 **Statistics Tracking**: Win/loss/draw counters
-- 🧠 **Machine Learning**: GPU-accelerated training, dataset generation
-- ⚡ **Performance**: Efficient AI with real-time gameplay
+- **Statistics Tracking**: Win/loss/draw counters
+- **Machine Learning**: GPU-accelerated training, dataset generation
+- **Performance**: Efficient AI with real-time gameplay
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
-### ✅ Prerequisites
+### Prerequisites
 
 - Python 3.8+
 - Windows/Linux/macOS
 - GPU recommended for training (optional for gameplay)
 
-### ✅ Installation
+### Contributeurs
+- [TatumLn](https://github.com/TatumLn): Front-End && OPS & Game-Logic
+- [Devkalix](https://github.com/Devkalix): Front-End & Game-Logic
+- [RatsirofoFenosoa-Git](https://github.com/RatsirofoFenosoa-Git): Back-End & Game-Logic
+- [toby7431](https://github.com/toby7431): Back-End & Game-Logic
+- [DADDYB0Y](https://github.com/DADDYB0Y): Full-Stack & Game-Logic
+- [Tiji-Tahina](https://github.com/Tiji-Tahina): Back-End & Game-Logic
+
+### Installation
 
 ```bash
 # Clone/download the repository
