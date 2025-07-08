@@ -55,6 +55,39 @@ docker compose up
 - **Fichier ``*AutoEncoder.ipynb* : TP de groupe sur l'AutoEncoder. 
 - **Fichier ``*nom.ipynb* : TP individuel. 
 
+# TP_Final : Final Exam AI Tic-Tac-Toe Master
+Un jeu de morpion sophistiqué doté d'une IA avancée alimentée par l'apprentissage automatique et l'algorithme minimax avec élagage alpha-bêta. Construit avec des technologies Python modernes et conçu pour une expérience utilisateur optimale.
+
+## Caractéristiques
+
+- IA améliorée** :
+  - Réseau neuronal entraîné sur GPU (99,41 % de précision)
+  - Classificateur Random Forest (97,94 % de précision)
+  - Minimax amélioré avec recherche en profondeur à 12 niveaux
+  - Livre d'ouverture avec premiers coups optimaux
+  - Détection avancée des menaces et analyse des fourches
+  - Table de transposition pour la mise en cache des positions
+
+- Interface graphique moderne :
+  - Interface propre et sombre
+  - Contrôles intuitifs avec une interface utilisateur fluide
+
+- Modes de jeu** :
+  - Humain contre IA (Facile / Moyen / Difficile)
+  - Humain vs Humain
+
+- Contrôles** :
+  - Nouveau jeu
+  - Rejouer
+  - Annuler (annulation intelligente pour l'IA)
+  - Quitter
+  - Menu principal
+
+- Suivi des statistiques** : Compteurs de victoires/défaites/nulles
+- Apprentissage machine** : Apprentissage accéléré par le GPU, génération d'ensembles de données
+- Performances** : IA efficace avec jeu en temps réel
+
+
 ## Contributeurs
 - [TatumLn](https://github.com/TatumLn): Front-End && OPS & Game-Logic
 - [Devkalix](https://github.com/Devkalix): Front-End & Game-Logic
