@@ -1,62 +1,63 @@
-# AI Tic-Tac-Toe Master
+# TP_1 : Puzzle Game (8-Puzzle & 15-Puzzle)
 
-A sophisticated tic-tac-toe game featuring advanced AI powered by machine learning and the minimax algorithm with alpha-beta pruning. Built with modern Python technologies and designed for an optimal user experience.
+Bienvenue sur le projet **LOL Puzzle** ! Ce jeu est développé en Python avec Pygame et peut être exécuté dans un environnement Docker de maniere simple et fiable.<br>a - Choisissez entre le puzzle 3x3 ou 4x4.<br>b - Jouer : deplacez les tuiles pour résoudre les puzzles.<br>c - AI : Resoudre le puzzle automatiquement:<br>Pour la fonctionnalité de résolution automatique du N-puzzle, nous avons implémenté un algorithme heuristique basé sur les concepts suivants :
+#### Distance de Manhattan :
+Elle calcule la distance minimale entre la position actuelle d'une tuile et sa position cible en ne permettant que des déplacements horizontaux ou verticaux.
+#### Conflits linéaires :
+Une pénalité est ajoutée lorsque deux tuiles sont dans la même ligne ou colonne mais dans le mauvais ordre, augmentant ainsi le coût de déplacement.
+#### Heuristiques :
+utilisées avec l'algorithme A* pour guider efficacement la recherche de la solution optimale. Cela permet de résoudre le puzzle de manière rapide et précise, même pour des tailles plus grandes.
 
----
+## Prérequis
 
-## Features
+Avant de commencer, assurez-vous d'avoir installé :
+- [Docker](https://www.docker.com/)
+- [Git](https://git-scm.com/)
+- [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install)
 
-- **Enhanced AI**:
-  - Neural Network trained on GPU (99.41% accuracy)
-  - Random Forest classifier (97.94% accuracy)
-  - Enhanced Minimax with 12-level depth search
-  - Opening book with optimal first moves
-  - Advanced threat detection and fork analysis
-  - Transposition table for position caching
+### 1. Cloner le dépôt
+Utilisez la commande suivante pour cloner ce dépôt sur votre machine :
+```bash
+git clone https://github.com/TatumLn/Puzzles_Game.git
+cd Puzzles_Game
+```
 
-- **Modern GUI**:
-  - Clean, dark-themed interface
-  - Intuitive controls with smooth UX
+### 2. Étapes pour lancer le projet 
+i   - Construisez limage Docker
+```bash
+docker build -t puzzle-game:1.0 .
+```
+ii  - Lancer le conteneur (02 choix possible)
+#### Avec docker run
+```bash
+docker run -it --rm -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix puzzle-game:1.0
+```
+#### Avec docker compose
+```bash
+docker compose up
+```
 
-- **Game Modes**:
-  - Human vs AI (Easy / Medium / Hard)
-  - Human vs Human
+# TP_2 : Classification et Clustering
 
-- **Controls**:
-  - New Game
-  - ⏮Replay
-  - ↩Undo (smart undo for AI)
-  - Exit
-  - Main Menu
+### 3. Lancer les fichiers .ipynb dans le dossier TP_2 
 
-- **Statistics Tracking**: Win/loss/draw counters
-- **Machine Learning**: GPU-accelerated training, dataset generation
-- **Performance**: Efficient AI with real-time gameplay
+## Prérequis:
+- [Google Colab](https://www.docker.com/)
+- [Jupyter Notebook](https://jupyter.org/try/)
 
----
+### Les Fichiers:
+- **Fichier `iris.ipynb`** : Présent dans le dossier `TP_2` Classification - Etude du dataset Iris.
+- **Fichier `instat.ipynb`** : Présent dans le dossier `TP_2` Clustering - Données Instat.
 
-## Quick Start
+# TP_3 : Computer Vision
 
-### Prerequisites
+### Les Fichiers:
+- **Fichier ``*AutoEncoder.ipynb* : TP de groupe sur l'AutoEncoder. 
+- **Fichier ``*nom.ipynb* : TP individuel. 
 
-- Python 3.8+
-- Windows/Linux/macOS
-- GPU recommended for training (optional for gameplay)
-
-### Contributeurs
+## Contributeurs
 - [TatumLn](https://github.com/TatumLn): Front-End && OPS & Game-Logic
 - [Devkalix](https://github.com/Devkalix): Front-End & Game-Logic
 - [RatsirofoFenosoa-Git](https://github.com/RatsirofoFenosoa-Git): Back-End & Game-Logic
 - [toby7431](https://github.com/toby7431): Back-End & Game-Logic
 - [DADDYB0Y](https://github.com/DADDYB0Y): Full-Stack & Game-Logic
-- [Tiji-Tahina](https://github.com/Tiji-Tahina): Back-End & Game-Logic
-
-### Installation
-
-```bash
-# Clone/download the repository
-git clone https://github.com/your_username/tic_tac_toe_ai.git
-cd tic_tac_toe_ai
-
-# Install required Python packages
-pip install -r requirements.txt

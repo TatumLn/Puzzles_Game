@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+        <style>
+            text { font-family: Arial; fill: black; }
+            .title { font-size: 24px; }
+            .stats { font-size: 18px; }
+        </style>
+        <rect width="100%" height="100%" fill="#f0f0f0"/>
+        <text x="200" y="50" text-anchor="middle" class="title">Statistiques du Puzzle</text>
+        <text x="50" y="100" class="stats">Taille du puzzle: 3x3</text>
+        <text x="50" y="140" class="stats">Temps: 7 secondes</text>
+        <text x="50" y="180" class="stats">Mouvements: 24</text>
+    </svg>
